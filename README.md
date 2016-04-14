@@ -52,7 +52,7 @@ Complete build instructions can be found [here](doc/Installation.md).
 
 ## Documentation
 
-Full documentation can be found at [https://thk1.github.io/kacanopen/](https://thk1.github.io/kacanopen/).
+Full documentation can be found at [https://kitmedical.github.io/kacanopen/](https://kitmedical.github.io/kacanopen/).
 
 ## License
 
