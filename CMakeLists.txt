@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 ### Compiler config ###
 
 # Use g++-4.9 if there is also an older g++ version on the system
-message("CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
 if("${CMAKE_CXX_COMPILER}" STREQUAL "" OR "${CMAKE_CXX_COMPILER}" STREQUAL "gcc" OR "${CMAKE_CXX_COMPILER}" STREQUAL "g++")
 	find_program(NEWER_GNU_CXX_COMPILER g++-4.9)
 	if (NOT "${NEWER_GNU_CXX_COMPILER}" STREQUAL "")
@@ -28,8 +27,6 @@ endif()
 
 # GCC ist not supported until 4.9
 # Clang ist not supported until 3.6
-message("CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
-message("CMAKE_CXX_COMPILER_VERSION=${CMAKE_CXX_COMPILER_VERSION}")
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
 		message(FATAL_ERROR "GCC version must be at least 4.9. Earlier versions miss std::regex support.")
