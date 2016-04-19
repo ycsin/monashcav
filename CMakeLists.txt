@@ -42,12 +42,10 @@ endif()
 # Compiler flags
 # TOD0: -std=c++14 will be obsolete when reverting to minimum CMake version 3.2 and
 #       using set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 14) again.
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra") # -Werror
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra") # -Werror
-message("CMAKE_CXX_FLAGS is not set by cmake if this message is removed, thus: CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
-
 project(kacanopen C CXX)
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra") # -Werror
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra") # -Werror
 
 ### settings ###
 
