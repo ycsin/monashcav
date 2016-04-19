@@ -36,6 +36,8 @@
 #include "master.h"
 #include "logger.h"
 
+// This example lists all connected devices and prints their manufacturer device name.
+
 int main() {
 
 	PRINT("List devices");

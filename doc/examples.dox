@@ -53,6 +53,10 @@ namespace kaco {
 	It starts the node via NMT, gets and sets values via SDO and determines
 	device type and device name.
 
+\example examples/listdevices.cpp
+
+	This example lists all connected devices and prints their manufacturer device name.
+
 \example examples/eds_library.cpp
 
 	This example loads dictionaries from the EDS library.
@@ -69,10 +73,10 @@ namespace kaco {
 	It requires that you have plugged in a CiA 401 device with 16 digital outputs
 	and 8 digital inputs.
 
-\example examples/ros/joint_state.cpp
+\example examples/ros/motor_and_io_bridge.cpp
 
-	This example shows how to publish and subsribe the Joint State of a connected
-	CiA 402 motor device using the ROS bridge.
+	This example publishes and subscribes JointState messages for each connected CiA 402 device as well as
+	uint8 messages for each connected digital IO device (CiA 401).
 
 */
 // end doxygen

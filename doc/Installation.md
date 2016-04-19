@@ -40,7 +40,7 @@ sudo apt-get install ros-jade-ros-base cmake clang-3.6 libboost-all-dev doxygen 
 
 The following CMake/Catkin arguments are available:
 
-- -DCAN_DRIVER_NAME=<name>
+- -DCAN_DRIVER_NAME=&lt;name&gt;
 	
 	Specify the driver to compile and use. At the moment, the following drivers are available: lincan, peak_linux, serial, socket, virtual.
 
@@ -60,15 +60,15 @@ The following CMake/Catkin arguments are available:
 	
 	Install example programs when running make install.
 
-- -DSDO_RESPONSE_TIMEOUT_MS=<timeout>
+- -DSDO_RESPONSE_TIMEOUT_MS=&lt;timeout&gt;
 
 	Timeout in milliseconds when waiting for an SDO response.
 
-- -DBUSNAME=<busname>
+- -DBUSNAME=&lt;busname&gt;
 
 	CAN driver busname used by the examples.
 
-- -DBAUDRATE=<baudrate>
+- -DBAUDRATE=&lt;baudrate&gt;
 
 	CAN driver baudrate used by the examples.
 

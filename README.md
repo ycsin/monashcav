@@ -2,7 +2,7 @@
 
 KaCanOpen is an easy-to-use [CanOpen](https://en.wikipedia.org/wiki/CANopen) stack, which consists of  four parts:
 
-* __Drivers:__ A wide range of hardware is supported using different CAN drivers. They have been developed by the [CanFestival project](http://www.canfestival.org/). Read [this](drivers/README_DRIVERS.md) for details.
+* __Drivers:__ A wide range of hardware is supported using different CAN drivers. They have been developed by the [CanFestival project](http://www.canfestival.org/). Read [this](drivers/README) for details.
 
 * __Core:__ This is a library which implements basic CANOpen protocols like [NMT](https://en.wikipedia.org/wiki/CANopen#Network_management_.28NMT.29_protocols), [SDO](https://en.wikipedia.org/wiki/CANopen#Service_Data_Object_.28SDO.29_protocol) and [PDO](https://en.wikipedia.org/wiki/CANopen#Process_Data_Object_.28PDO.29_protocol). As an example, you can easily fetch a value from a device (*uploading* in CanOpen terminology) via `core.sdo.upload(node_id, index, subindex)`. It furthermore allows you to register callbacks on certain events or any incoming messages, so one can build arbitrary CanOpen nodes (master or slave) using this library.
 
