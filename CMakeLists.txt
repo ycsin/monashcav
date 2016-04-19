@@ -12,17 +12,17 @@ if("${CMAKE_CXX_COMPILER}" STREQUAL "" OR "${CMAKE_CXX_COMPILER}" STREQUAL "gcc"
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "")
-  if("${CMAKE_CXX_COMPILER}" MATCHES ".*g[+][+].*")
-    set(CMAKE_CXX_COMPILER_ID "GNU")
-  endif()
+	if("${CMAKE_CXX_COMPILER}" MATCHES ".*g[+][+].*")
+		set(CMAKE_CXX_COMPILER_ID "GNU")
+	endif()
 endif()
 
 if("${CMAKE_CXX_COMPILER_VERSION}" STREQUAL "")
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version COMMAND head -1 COMMAND awk "{ print $NF }" OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION)
-  elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    message(FATAL_ERROR "Setting CMAKE_CXX_COMPILER_ID not implemented.")
-  endif()
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version COMMAND head -1 COMMAND awk "{ print $NF }" OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION)
+	elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		message(FATAL_ERROR "Setting CMAKE_CXX_COMPILER_ID not implemented.")
+	endif()
 endif()
 
 # GCC ist not supported until 4.9
@@ -36,7 +36,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		message(FATAL_ERROR "Clang version must be at least 3.6! Earlier versions don't support debug information for auto.")
 	endif()
 else()
-  message(FATAL_ERROR "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
+	message(FATAL_ERROR "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
 endif()
 
 # Compiler flags
