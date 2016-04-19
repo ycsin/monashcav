@@ -33,6 +33,7 @@ sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net:80 --recv-key 0xB01FA
 sudo apt-add-repository ppa:george-edison55/cmake-3.x
 sudo apt-get update
 sudo apt-get install ros-jade-ros-base cmake clang-3.6 libboost-all-dev doxygen graphviz
+sudo apt-get install cmake clang-3.6 libboost-system-dev libboost-filesystem-dev ros-jade-catkin ros-jade-roscpp ros-jade-std-msgs ros-jade-sensor-msgs ros-jade-message-runtime doxygen graphviz
 ~~~
 
 
@@ -40,35 +41,35 @@ sudo apt-get install ros-jade-ros-base cmake clang-3.6 libboost-all-dev doxygen 
 
 The following CMake/Catkin arguments are available:
 
-- -DCAN_DRIVER_NAME=&lt;name&gt;
+- `-DCAN_DRIVER_NAME=<name>`
 	
 	Specify the driver to compile and use. At the moment, the following drivers are available: lincan, peak_linux, serial, socket, virtual.
 
-- DBUILD_ALL_DRIVERS=On
+- `-DBUILD_ALL_DRIVERS=On`
 
 	Build all available drivers.
 
-- -DEXHAUSTIVE_DEBUGGING=On
+- `-DEXHAUSTIVE_DEBUGGING=On`
 
 	Enable exhaustive debugging.
 
-- -DNO_ROS=On
+- `-DNO_ROS=On`
 
 	Exclude anything depending on ROS.
 
-- -DINSTALL_EXAMPLES=On
+- `-DINSTALL_EXAMPLES=On`
 	
 	Install example programs when running make install.
 
-- -DSDO_RESPONSE_TIMEOUT_MS=&lt;timeout&gt;
+- `-DSDO_RESPONSE_TIMEOUT_MS=<timeout>`
 
 	Timeout in milliseconds when waiting for an SDO response.
 
-- -DBUSNAME=&lt;busname&gt;
+- `-DBUSNAME=<busname>`
 
 	CAN driver busname used by the examples.
 
-- -DBAUDRATE=&lt;baudrate&gt;
+- `-DBAUDRATE=<baudrate>`
 
 	CAN driver baudrate used by the examples.
 
@@ -135,18 +136,18 @@ When building with Catkin, you can excute example programs like that:
 ~~~bash
 cd your_catkin_workspace
 source devel/setup.bash
-./devel/lib/kacanopen/kacanopen_example_ros
+rosrun kacanopen kacanopen_example_motor_and_io_bridge # roscore needs to be running
 ~~~
 
 Otherwise just run them from `build/examples/`:
 
 ~~~bash
-./build/examples/kacanopen_example_ros
+./build/examples/kacanopen_example_listdevices
 ~~~
 
 ## Drivers
 
-KaCanOpen provides several CAN drivers (currently only for Linux):
+KaCanOpen provides several CAN drivers (currently only for Linux).
 
 - socket (default)
 
@@ -176,7 +177,15 @@ KaCanOpen provides several CAN drivers (currently only for Linux):
 
 - peak_linux
 
-	For use with CAN hardware by [PEAK-System](http://www.peak-system.com/fileadmin/media/linux/index.htm). You will need [PCAN drivers](http://www.peak-system.com/fileadmin/media/linux/index.htm#download) installed for successful compilation.
+	For use with CAN hardware by [PEAK-System](http://www.peak-system.com/fileadmin/media/linux/index.htm). You will need [PCAN drivers](http://www.peak-system.com/fileadmin/media/linux/index.htm#download) installed for successful compilation:
+
+		wget http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-7.15.2.tar.gz
+		tar -xzf peak-linux-driver-7.15.2.tar.gz
+		mv peak-linux-driver-7.15.2 ~/peak
+		cd ~/peak
+		make
+
+	Then build KaCanOpen with the CMake/Catkin flag `-DPCAN_PREFIX="~/peak"`. You can replace `~/peak` as you wish.
 
 - lincan
 
