@@ -39,32 +39,35 @@
 #include <cassert>
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 namespace kaco {
 
 Device::Device(Core& core, uint8_t node_id)
-	: m_core(core), m_node_id(node_id), m_eds_library(m_dictionary) {
-
-		bool success = m_eds_library.lookup_library();
-
-		if (!success) {
-			ERROR("[Device constructor] EDS library not found. Please fix or manage dictionary by yourself.");
-		} else {
-			success = m_eds_library.load_mandatory_entries();
-			if (!success) {
-				ERROR("[Device constructor] Could not load mandatory dictionary entries. Please fix or manage dictionary by yourself.");
-			}
-		}
-
-	}
+	: m_core(core), m_node_id(node_id), m_eds_library(m_dictionary) { }
 
 Device::~Device() 
 	{ }
 
-void Device::start() {
+bool Device::start() {
+
 	m_core.nmt.send_nmt_message(m_node_id,NMT::Command::start_node);
-	load_operations();
-	load_constants();
+
+	bool success = m_eds_library.lookup_library();
+
+	if (!success) {
+		ERROR("[Device constructor] EDS library not found. Please fix or manage dictionary by yourself.");
+	} else {
+		success = m_eds_library.load_mandatory_entries();
+		if (!success) {
+			ERROR("[Device constructor] Could not load mandatory dictionary entries. Please fix or manage dictionary by yourself.");
+		}
+	}
+
+	success = load_operations() && success;
+	success = load_constants() && success;
+	return success;
+
 }
 
 uint8_t Device::get_node_id() const {
@@ -185,11 +188,20 @@ void Device::add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_n
 		throw dictionary_error(dictionary_error::type::mapping_size, name,
 			"offset ("+std::to_string(offset)+") + type_size ("+std::to_string(type_size)+") > 8.");
 	}
+	
 
-	m_receive_pdo_mappings.push_back({cob_id,name,offset,array_index});
+	ReceivePDOMapping *pdo_temp;
+
+	{
+		std::lock_guard<std::mutex> lock(m_receive_pdo_mappings_mutex);
+		m_receive_pdo_mappings.push_front({cob_id,name,offset,array_index});
+		pdo_temp = &m_receive_pdo_mappings.front();
+	}
+	
+	ReceivePDOMapping& pdo = *pdo_temp;
 
 	// TODO: this only works while add_pdo_received_callback takes callback by value.
-	auto binding = std::bind(&Device::pdo_received_callback, this, m_receive_pdo_mappings.back(), std::placeholders::_1);
+	auto binding = std::bind(&Device::pdo_received_callback, this, pdo, std::placeholders::_1);
 	m_core.pdo.add_pdo_received_callback(cob_id, std::move(binding));
 
 }
@@ -197,9 +209,16 @@ void Device::add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_n
 
 void Device::add_transmit_pdo_mapping(uint16_t cob_id, const std::vector<Mapping>& mappings, TransmissionType transmission_type, std::chrono::milliseconds repeat_time) {
 
-	// Contructor can throw dictionary_error. Letting user handle this.
-	m_transmit_pdo_mappings.emplace_back(m_core, m_dictionary, cob_id, transmission_type, repeat_time, mappings);
-	TransmitPDOMapping& pdo = m_transmit_pdo_mappings.back();
+	TransmitPDOMapping *pdo_temp;
+
+	{
+		std::lock_guard<std::mutex> lock(m_transmit_pdo_mappings_mutex); // unlocks in case of exception
+		// Contructor can throw dictionary_error. Letting user handle this.
+		m_transmit_pdo_mappings.emplace_front(m_core, m_dictionary, cob_id, transmission_type, repeat_time, mappings);
+		pdo_temp = &m_transmit_pdo_mappings.front();
+	}
+	
+	TransmitPDOMapping& pdo = *pdo_temp;
 
 	if (transmission_type==TransmissionType::ON_CHANGE) {
 
@@ -224,7 +243,7 @@ void Device::add_transmit_pdo_mapping(uint16_t cob_id, const std::vector<Mapping
 			WARN("[Device::add_transmit_pdo_mapping] Repeat time is 0. This could overload the bus.");
 		}
 
-		pdo.transmitter = std::move(std::shared_ptr<std::thread>(new std::thread([&pdo, repeat_time](){
+		pdo.transmitter = std::unique_ptr<std::thread>(new std::thread([&pdo, repeat_time](){
 
 			while (true) {
 				DEBUG_LOG("[Timer thread] Sending periodic PDO.");
@@ -232,7 +251,7 @@ void Device::add_transmit_pdo_mapping(uint16_t cob_id, const std::vector<Mapping
 				std::this_thread::sleep_for(repeat_time);
 			}
 
-		})));
+		}));
 
 	}
 

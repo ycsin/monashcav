@@ -45,6 +45,7 @@
 #include <string>
 #include <chrono>
 #include <functional>
+#include <mutex>
 
 namespace kaco {
 
@@ -61,6 +62,24 @@ namespace kaco {
 	///
 	/// Call print_dictionary() if you want to know which entries are
 	/// accessible by name.
+	///
+	/// ### Remarks on thread-safety:
+	///
+	///   There are three classes of methods:
+	///
+	///     (1) Methods which manipulate the dictionary structure
+	///
+	///     (2) Methods which access dictionary entries
+	///
+	///     (3) Methods which only access Core
+	///
+	///    Methods in (3) as well as get_node_id() are always thread-safe.
+	///
+	///    Methods in (2) are thread-safe if they are not intermixed with
+	///    methods in (1).
+	///
+	///    Methods in (1) should be run in sequence before accessing
+	///    dictionary entries (group 2).
 	class Device {
 
 	public:
@@ -69,33 +88,73 @@ namespace kaco {
 		using Operation = std::function<Value(Device&,const Value&)>;
 
 		/// Constructor.
-		/// It will try to load mandatory dictionary entries from the EDS library.
 		/// \param core Reference of a Core instance
 		/// \param node_id ID of the represented device
 		Device(Core& core, uint8_t node_id);
 
+		/// Copy constructor deleted because of callbacks with self-references.
+		Device(const Device&) = delete;
+
+		/// Move constructor deleted because of callbacks with self-references.
+		Device(Device&&) = delete;
+
 		/// Destructor
 		~Device();
 
-		/// Starts the node via NMT protocol.
-		void start();
-
 		/// Returns the node ID of the device.
+		/// \remark thread-safe
 		uint8_t get_node_id() const;
+
+		/// \name (1) Methods which manipulate the dictionary structure
+		///@{
+
+		/// Starts the node via NMT protocol and loads
+		/// mandatory entries, operations, and constants.
+		/// \return True, if entries, operations, and constants are successfully loaded
+		/// \todo Add m_started member?
+		bool start();
+
+		/// Tries to load the most specific EDS file available in KaCanOpen's internal EDS library.
+		/// This is either device specific, CiA profile specific, or mandatory CiA 301.
+		/// \returns true, if successful
+		bool load_dictionary_from_library();
+
+		/// Loads the dictionary from a custom EDS file.
+		/// \param path A filesystem path where the EDS library can be found.
+		/// \returns true, if successful
+		bool load_dictionary_from_eds(std::string path);
+
+		/// Loads convenience operations associated with the device profile.
+		/// \returns true, if successful
+		bool load_operations();
+
+		/// Adds a convenience operation.
+		void add_operation(const std::string& coperation_name, const Operation& operation);
+
+		/// Loads constants associated with the device profile.
+		/// \returns true, if successful
+		bool load_constants();
+
+		/// Adds a constant.
+		void add_constant(const std::string& constant_name, const Value& constant);
+
+		///@}
+
+		/// \name (2) Methods which access dictionary entries
+		///@{
 
 		/// Returns true if the entry is contained in the device dictionary.
 		/// \param entry_name Name of the dictionary entry
 		/// \return True if entry_name is contained in the device dictionary.
+		/// \todo Overload with index+subindex.
 		bool has_entry(const std::string& entry_name);
 
-		/// Gets the value of a dictionary entry by index via SDO
-		/// It does not change the corresponding internal value and therefore the new value
-		/// cannot be used by Transmit PDOs.
-		/// \param index Dictionary index of the entry
-		/// \param subindex Subindex of the entry
-		/// \param type Data type of the entry
-		/// \throws sdo_error
-		Value get_entry_via_sdo(uint32_t index, uint8_t subindex, Type type);
+		/// Returns the type of a dictionary entry identified by name as it is defined in the local dictionary.
+		/// \param entry_name Name of the dictionary entry
+		/// \throws dictionary_error if there is no entry with the given name
+		/// \todo Missing array_index argument.
+		/// \todo Overload with index+subindex.
+		Type get_entry_type(const std::string& entry_name);
 
 		/// Gets the value of a dictionary entry by name internally.
 		/// If there is no cached value or the entry is configured to send an SDO on request, the new value is fetched from the device via SDO.
@@ -106,22 +165,8 @@ namespace kaco {
 		/// \throws dictionary_error if there is no entry with the given name, or array_index!=0 for a non-array entry.
 		/// \throws sdo_error
 		/// \todo check access_type from dictionary
+		/// \todo Overload with index+subindex.
 		const Value& get_entry(const std::string& entry_name, uint8_t array_index=0, ReadAccessMethod access_method = ReadAccessMethod::use_default);
-
-		/// Returns the type of a dictionary entry identified by name as it is defined in the local dictionary.
-		/// \param entry_name Name of the dictionary entry
-		/// \throws dictionary_error if there is no entry with the given name
-		/// \todo Missing array_index argument.
-		Type get_entry_type(const std::string& entry_name);
-
-		/// Sets the value of a dictionary entry by index via SDO
-		/// It does not change the corresponding internal value and therefore the new value
-		/// cannot be used by Transmit PDOs.
-		/// \param index Dictionary index of the entry
-		/// \param subindex Subindex of the entry
-		/// \param value The value to write, wrapped in a Value object. The Value class has implicit cast constructors for all supported data types.
-		/// \throws sdo_error
-		void set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& value);
 
 		/// Sets the value of a dictionary entry by name internally.
 		/// If the entry is configured to send an SDO on update, the new value is also sent to the device via SDO.
@@ -133,7 +178,25 @@ namespace kaco {
 		/// \throws dictionary_error if there is no entry with the given name, or array_index!=0 for a non-array entry.
 		/// \throws sdo_error
 		/// \todo check access_type from dictionary
+		/// \todo Overload with index+subindex.
 		void set_entry(const std::string& entry_name, const Value& value, uint8_t array_index=0, WriteAccessMethod access_method = WriteAccessMethod::use_default);
+
+		/// Returns the CiA profile number
+		/// \throws sdo_error
+		uint16_t get_device_profile_number();
+
+		/// Executes a convenience operation. It must exist due to a previous
+		/// load_operations() or add_operation() call.
+		/// \param operation_name Name of the operation.
+		/// \param argument Optional argument to be passed to the operation.
+		/// \returns The result value of the operation. Invalid value in case there is no result.
+		/// \throws dictionary_error if operation is not available
+		Value execute(const std::string& operation_name, const Value& argument = m_dummy_value);
+
+		/// Returns a constant. It must exist due to a previous
+		/// load_constants() or add_constant() call.
+		/// \throws dictionary_error if constant is not available
+		const Value& get_constant(const std::string& constant_name) const;
 
 		/// Adds a receive PDO mapping. This means values sent by the device via PDO are saved into the dictionary cache.
 		/// \param cob_id COB-ID of the PDO
@@ -162,49 +225,35 @@ namespace kaco {
 		/// \throws dictionary_error
 		void add_transmit_pdo_mapping(uint16_t cob_id, const std::vector<Mapping>& mappings, TransmissionType transmission_type=TransmissionType::ON_CHANGE, std::chrono::milliseconds repeat_time=std::chrono::milliseconds(0));
 
-		/// Returns the CiA profile number (determined via SDO)
-		/// \throws sdo_error
-		uint16_t get_device_profile_number();
-
-		/// Tries to load the most specific EDS file available in KaCanOpen's internal EDS library.
-		/// This is either device specific, CiA profile specific, or mandatory CiA 301.
-		/// \returns true, if successful
-		bool load_dictionary_from_library();
-
-		/// Loads the dictionary from a custom EDS file.
-		/// \param path A filesystem path where the EDS library can be found.
-		/// \returns true, if successful
-		bool load_dictionary_from_eds(std::string path);
-
-		/// Loads convenience operations associated with the device profile.
-		/// \returns true, if successful
-		bool load_operations();
-
-		/// Adds a convenience operation.
-		void add_operation(const std::string& coperation_name, const Operation& operation);
-
-		/// Executes a convenience operation. It must exist due to a previous
-		/// load_operations() or add_operation() call.
-		/// \param operation_name Name of the operation.
-		/// \param argument Optional argument to be passed to the operation.
-		/// \returns The result value of the operation. Invalid value in case there is no result.
-		/// \throws dictionary_error if operation is not available
-		Value execute(const std::string& operation_name, const Value& argument = m_dummy_value);
-
-		/// Loads constants associated with the device profile.
-		/// \returns true, if successful
-		bool load_constants();
-
-		/// Adds a constant.
-		void add_constant(const std::string& constant_name, const Value& constant);
-
-		/// Returns a constant. It must exist due to a previous
-		/// load_constants() or add_constant() call.
-		/// \throws dictionary_error if constant is not available
-		const Value& get_constant(const std::string& constant_name) const;
-
 		/// Prints the dictionary together with currently cached values to command line.
 		void print_dictionary() const;
+
+		///@}
+
+		/// \name (3) Methods which only access Core
+		///@{
+
+		/// Gets the value of a dictionary entry by index via SDO
+		/// It does not change the corresponding internal value and therefore the new value
+		/// cannot be used by Transmit PDOs.
+		/// \param index Dictionary index of the entry
+		/// \param subindex Subindex of the entry
+		/// \param type Data type of the entry
+		/// \throws sdo_error
+		/// \remark thread-safe
+		Value get_entry_via_sdo(uint32_t index, uint8_t subindex, Type type);
+
+		/// Sets the value of a dictionary entry by index via SDO
+		/// It does not change the corresponding internal value and therefore the new value
+		/// cannot be used by Transmit PDOs.
+		/// \param index Dictionary index of the entry
+		/// \param subindex Subindex of the entry
+		/// \param value The value to write, wrapped in a Value object. The Value class has implicit cast constructors for all supported data types.
+		/// \throws sdo_error
+		/// \remark thread-safe
+		void set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& value);
+
+		///@}
 
 	private:
 
@@ -218,8 +267,10 @@ namespace kaco {
 		std::map<std::string, Entry> m_dictionary;
 		std::map<std::string, Operation> m_operations;
 		std::map<std::string, Value> m_constants;
-		std::vector<ReceivePDOMapping> m_receive_pdo_mappings;
-		std::vector<TransmitPDOMapping> m_transmit_pdo_mappings;
+		std::forward_list<ReceivePDOMapping> m_receive_pdo_mappings;
+		std::mutex m_receive_pdo_mappings_mutex;
+		std::forward_list<TransmitPDOMapping> m_transmit_pdo_mappings;
+		std::mutex m_transmit_pdo_mappings_mutex;
 		static const Value m_dummy_value;
 		EDSLibrary m_eds_library;
 

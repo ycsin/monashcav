@@ -65,6 +65,12 @@ namespace kaco {
 		TransmitPDOMapping(Core& core, const std::map<std::string, Entry>& dictionary, uint16_t cob_id_,
 			TransmissionType transmission_type_, std::chrono::milliseconds repeat_time_, const std::vector<Mapping>& mappings_);
 
+		/// Copy constructor deleted.
+		TransmitPDOMapping(const TransmitPDOMapping&) = delete;
+
+		/// Move constructor deleted.
+		TransmitPDOMapping(TransmitPDOMapping&&) = delete;
+
 		/// Stops the transmitter thread if there is one.
 		~TransmitPDOMapping();
 
@@ -81,8 +87,8 @@ namespace kaco {
 		std::vector<Mapping> mappings;
 
 		/// The transmitter thread
-		/// \note This is a shared pointer because threads cannot be copied, but TransmitPDOMapping is default-copy-constructed by std::vector.
-		std::shared_ptr<std::thread> transmitter;
+		/// \note This is a unique pointer because transmitter is optional.
+		std::unique_ptr<std::thread> transmitter;
 
 		/// Sends the PDO
 		void send() const;

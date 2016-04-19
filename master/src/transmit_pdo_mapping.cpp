@@ -54,9 +54,6 @@ TransmitPDOMapping::TransmitPDOMapping(Core& core, const std::map<std::string, E
 TransmitPDOMapping::~TransmitPDOMapping() {
 	if (transmitter) {
 		transmitter->detach();
-		if (!transmitter.unique()) {
-			WARN("Transmitter thread has been copied and cannot be deleted now!");
-		}
 	}
 }
 

@@ -52,6 +52,12 @@ namespace kaco {
 		/// Creates Core instance and adds NMT listener for new devices. 
 		Master();
 
+		/// Copy constructor deleted because of callbacks with self-references.
+		Master(const Master&) = delete;
+
+		/// Move constructor deleted because of callbacks with self-references.
+		Master(Master&&) = delete;
+
 		/// Destructor.
 		~Master();
 
@@ -65,10 +71,12 @@ namespace kaco {
 		void stop();
 
 		/// Returns the number of slave devices in the network.
+		/// \remark thread-safe
 		size_t num_devices() const;
 
 		/// Returns a reference to a slave device object.
 		/// \param index Index of the device. Must be smaller than num_devices().
+		/// \remark thread-safe
 		Device& get_device(size_t index) const;
 
 		/// Core instance.
