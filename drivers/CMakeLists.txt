@@ -1,27 +1,21 @@
 cmake_minimum_required(VERSION 2.8)
-project(KaCanOpen_drivers C)
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+message(STATUS "Configuring drivers")
 
-if(WIN32)
-    include_directories(${CMAKE_CURRENT_LIST_DIR}/include/win32)
-else()
-    include_directories(${CMAKE_CURRENT_LIST_DIR}/include/unix)
-    include_directories(${CMAKE_CURRENT_LIST_DIR}/include/timers_unix)
-endif()
+### Building macro ###
+macro(driver_switch)
+	# TODO: Replace with CMake 3.3 command IN_LIST
+	list(FIND BUILD_DRIVERS "${ARGV0}" build_this)
+	if (("${DRIVER}" MATCHES "${ARGV0}") OR (${build_this} GREATER -1) OR (${BUILD_ALL_DRIVERS}))
 
-if(${BUILD_ALL_DRIVERS})
+		set(TARGET_NAME "can_${ARGV0}")
+		add_library(${TARGET_NAME} SHARED "${ARGV0}.cpp")
+		set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 14)
+		target_link_libraries(${TARGET_NAME} ${CMAKE_DL_LIBS})
+		kacanopen_install("${TARGET_NAME}" FALSE)
 
-    file(GLOB DRIVER_DIRS
-        "${CMAKE_CURRENT_LIST_DIR}/can_*"
-    )
+	endif()
+endmacro()
 
-    foreach(DRIVER_DIR ${DRIVER_DIRS})
-        add_subdirectory(${DRIVER_DIR})
-    endforeach(DRIVER_DIR)
-    
-else()
-
-    add_subdirectory(${CAN_DRIVER})
-    
-endif()
+### List of drivers ###
+driver_switch("dummy")

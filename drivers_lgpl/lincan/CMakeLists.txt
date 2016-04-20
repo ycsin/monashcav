@@ -5,7 +5,7 @@ message(STATUS "Configuring lincan driver")
 set(TARGET_NAME can_lincan)
 
 file(GLOB TARGET_SRC
-    "*.c"
+	"*.c"
 )
 
 add_library(${TARGET_NAME} SHARED ${TARGET_SRC})

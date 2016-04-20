@@ -50,12 +50,35 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra") # -Werror
 ### settings ###
 
 include(CMakeSettings.txt)
-set(CAN_DRIVER can_${CAN_DRIVER_NAME})
-message(STATUS "Using CAN driver ${CAN_DRIVER}")
+
+## Driver begin ##
+
+if (DEFINED CAN_DRIVER_NAME)
+	message(WARNING "CAN_DRIVER_NAME is deprecated. Use DRIVER instead. Overwriting DRIVER with CAN_DRIVER_NAME (${CAN_DRIVER_NAME}) now...")
+	set(DRIVER "${CAN_DRIVER_NAME}")
+endif()
+
+foreach(BUILD_DRIVER ${BUILD_DRIVERS})
+	# TODO: Replace with CMake 3.3 command IN_LIST
+	list(FIND SUPPORTED_DRIVERS "${BUILD_DRIVER}" supported)
+	if (${supported} EQUAL -1)
+		message(FATAL_ERROR "Driver ${BUILD_DRIVER} does not exist, but you've specified it in BUILD_DRIVERS.")
+	endif()
+endforeach()
+
+list(FIND SUPPORTED_DRIVERS "${DRIVER}" driver_supported)
+if (${driver_supported} EQUAL -1)
+	message(FATAL_ERROR "Driver ${DRIVER} does not exist, but you've set it as DRIVER.")
+endif()
+
+set(DRIVER_LINK_NAME can_${DRIVER})
+message(STATUS "Using CAN driver ${DRIVER_LINK_NAME}")
 
 if(${BUILD_ALL_DRIVERS})
 	message(STATUS "Building all available drivers.")
 endif()
+
+## Driver end ##
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Release")
 	message(STATUS "You are in release mode.")
@@ -181,6 +204,7 @@ if (NOT(${NO_ROS}))
 	add_subdirectory(ros_bridge)
 endif()
 
+add_subdirectory(drivers_lgpl)
 add_subdirectory(drivers)
 add_subdirectory(core)
 add_subdirectory(master)

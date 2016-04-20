@@ -41,13 +41,21 @@ sudo apt-get install cmake clang-3.6 libboost-system-dev libboost-filesystem-dev
 
 The following CMake/Catkin arguments are available:
 
-- `-DCAN_DRIVER_NAME=<name>`
+- `-DDRIVER=<name>`
 	
-	Specify the driver to compile and use. At the moment, the following drivers are available: lincan, peak_linux, serial, socket, virtual.
+	Specify the driver to compile and use. At the moment, the following drivers are available: lincan, peak_linux, serial, socket, virtual, dummy.
+
+- `-DBUILD_DRIVERS=<;-separated-list of names>`
+
+	Semicolon-separated list of additional CAN drivers to build. You can use the same values as for DRIVER.
 
 - `-DBUILD_ALL_DRIVERS=On`
 
 	Build all available drivers.
+
+- `-DPCAN_PREFIX=<path>`
+
+	Path to the [PCAN drivers](http://www.peak-system.com/fileadmin/media/linux/index.htm#download) needed by the peak_linux driver. See [Drivers section](#drivers).
 
 - `-DEXHAUSTIVE_DEBUGGING=On`
 
@@ -104,7 +112,7 @@ git clone git@gitlab.ira.uka.de:thomaskeh/kacanopen.git
 cd kacanopen
 mkdir build
 cd build
-cmake -DCAN_DRIVER_NAME=<driver> -DNO_ROS=On ..
+cmake -DDRIVER=<driver> -DNO_ROS=On ..
 make
 ~~~
 
@@ -122,10 +130,10 @@ git clone git@gitlab.ira.uka.de:thomaskeh/kacanopen.git
 Now you can build it:
 
 ~~~bash
-catkin_make -DCAN_DRIVER_NAME=<driver>
+catkin_make -DDRIVER=<driver>
 ~~~
 
-Replace `<driver>` by a CAN driver name (see section Drivers).
+Replace `<driver>` by a CAN driver name (see section [Drivers](#drivers)).
 
 ## Examples
 
