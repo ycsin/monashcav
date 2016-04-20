@@ -1,3 +1,5 @@
+[![Licence](https://img.shields.io/badge/licence-BSD%203--Clause-blue.svg)]() [![Build Status](https://api.travis-ci.org/KITmedical/kacanopen.svg?branch=master)](https://travis-ci.org/KITmedical/kacanopen)
+
 # KaCanOpen
 
 KaCanOpen is an easy-to-use [CanOpen](https://en.wikipedia.org/wiki/CANopen) stack, which consists of  four parts:
