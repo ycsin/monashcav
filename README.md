@@ -49,7 +49,7 @@ When building with Catkin, you can excute example programs like that:
 ~~~bash
 cd your_catkin_workspace
 source devel/setup.bash
-./devel/lib/kacanopen/kacanopen_example_ros
+rosrun kacanopen kacanopen_example_motor_and_io_bridge # roscore needs to be running
 ~~~
 
 Complete build instructions can be found [here](doc/Installation.md).
