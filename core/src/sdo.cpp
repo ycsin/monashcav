@@ -230,15 +230,15 @@ void SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t index, ui
 
 	const auto timeout = std::chrono::milliseconds(SDO_RESPONSE_TIMEOUT_MS);
 	const auto status = received_future.wait_for(timeout);
-	
-	if (status == std::future_status::timeout) {
-		throw sdo_error(sdo_error::type::response_timeout, "Timeout was "+std::to_string(timeout.count())+"ms.");
-	}
 
 	{
 		std::lock_guard<std::mutex> scoped_lock(m_receive_callbacks_mutex);
 		// std::list iterators to existing elements are never invalidated
 		m_receive_callbacks.erase(receiver_handle);
+	}
+
+	if (status == std::future_status::timeout) {
+		throw sdo_error(sdo_error::type::response_timeout, "Timeout was "+std::to_string(timeout.count())+"ms.");
 	}
 
 }
