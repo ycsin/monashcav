@@ -35,6 +35,7 @@
 #include "logger.h"
 #include "dictionary_error.h"
 #include "profiles.h"
+#include "sdo_error.h"
 
 #include <cassert>
 #include <algorithm>
@@ -420,6 +421,17 @@ void Device::print_dictionary() const {
 	}
 
 }
+
+void Device::read_complete_dictionary() {
+	for (const auto& pair : m_dictionary) {
+		try {
+			get_entry(pair.first);
+		} catch (const sdo_error& error) {
+			WARN("[Device::read_complete_dictionary] SDO error for field "<<pair.first<<": "<<error.what());
+		}
+	}
+}
+
 
 const Value Device::m_dummy_value = Value();
 

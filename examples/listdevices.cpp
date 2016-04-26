@@ -70,10 +70,11 @@ int main() {
 			return EXIT_FAILURE;
 		}
 
-		//PRINT("Dictionary:");
-		//device.print_dictionary();
+		PRINT("Dictionary:");
+		device.read_complete_dictionary();
+		device.print_dictionary();
 
-		DUMP(device.get_entry("Manufacturer device name"));
+		//DUMP(device.get_entry("Manufacturer device name"));
 
 	}
 
