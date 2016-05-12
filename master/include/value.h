@@ -155,6 +155,8 @@ namespace kaco {
 		/// Compares not equal
 		bool operator!=(const Value& other) const;
 
+		std::string to_string() const;
+
 	private:
 
 		static const bool debug = false;

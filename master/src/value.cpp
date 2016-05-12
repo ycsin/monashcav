@@ -32,6 +32,8 @@
 #include "value.h"
 #include "logger.h"
 
+#include <sstream>
+
 namespace kaco {
 
 Value::Value() {
@@ -343,6 +345,13 @@ bool Value::operator==(const Value& other) const {
 
 bool Value::operator!=(const Value& other) const {
 	return !(operator==(other));
+}
+
+std::string Value::to_string() const {
+	using namespace value_printer;
+	std::ostringstream stream;
+	stream << std::dec << *this;
+	return stream.str();
 }
 
 //----------------//

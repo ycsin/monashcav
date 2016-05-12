@@ -31,11 +31,19 @@
 
 #include "eds_library.h"
 #include "eds_reader.h"
+#include "device.h"
 #include "logger.h"
+#include "canopen_error.h"
+#include "types.h"
+#include "value.h"
 
 #include <vector>
 #include <string>
+#include <unordered_map>
+
 #include <boost/filesystem.hpp>
+#include <boost/property_tree/ptree.hpp> // property_tree
+#include <boost/property_tree/json_parser.hpp>
 
 // This is set by CMake...
 //#define SHARE_SOURCE_PATH ...
@@ -55,14 +63,15 @@ namespace kaco {
 
 		std::vector<std::string> paths;
 		if (!path.empty()) {
-			paths.push_back(path+"/eds_library.txt");
+			paths.push_back(path+"/eds_files.json");
 		}
 
-		paths.push_back(SHARE_SOURCE_PATH "/eds_library/eds_library.txt");
-		paths.push_back(SHARE_INSTALLED_PATH "/eds_library/eds_library.txt");
-		paths.push_back("/usr/local/share/kacanopen/eds_library/eds_library.txt");
-		paths.push_back("/usr/share/kacanopen/eds_library/eds_library.txt");
+		paths.push_back(SHARE_SOURCE_PATH "/eds_library/eds_files.json");
+		paths.push_back(SHARE_INSTALLED_PATH "/eds_library/eds_files.json");
+		paths.push_back("/usr/local/share/kacanopen/eds_library/eds_files.json");
+		paths.push_back("/usr/share/kacanopen/eds_library/eds_files.json");
 		// TODO: typical windows / mac osx paths?
+		// TODO: environment variable
 
 		bool success = false;
 		for (const std::string& path : paths) {
@@ -91,7 +100,7 @@ namespace kaco {
 
 		assert(m_ready);
 
-		std::string path = m_library_path + "/cia/"+std::to_string(device_profile_number)+".eds";
+		std::string path = m_library_path + "/CiA_profiles/"+std::to_string(device_profile_number)+".eds";
 		if (!fs::exists(path)) {
 			DEBUG_LOG("[EDSLibrary::load_default_eds] Default EDS file not available: "<<path);
 			return false;
@@ -118,7 +127,96 @@ namespace kaco {
 
 	}
 
-	bool EDSLibrary::load_manufacturer_eds(uint32_t vendor_id, uint32_t product_code, uint32_t revision_number) {
+	bool EDSLibrary::load_manufacturer_eds(Device& device) {
+		
+		boost::property_tree::ptree eds_files;
+		boost::property_tree::json_parser::read_json(m_library_path+"/eds_files.json", eds_files);
+		std::unordered_map<std::string,Value> cache;
+
+		for (const auto& level0 : eds_files) {
+
+			const std::string& filename = level0.second.get<std::string>("file");
+			DEBUG_LOG("Testing if "<<filename<<" fits.");
+			const boost::property_tree::ptree& matches = level0.second.get_child("match");
+			bool fits = true;
+
+			for (const auto& level1 : matches) {
+				
+				const std::string& field = level1.first;
+				const std::string& value_expected = level1.second.get_value<std::string>();
+				bool has_field = false;
+
+				if (cache.count(field)>0) {
+					// field is already in cache
+					if (cache[field].type != Type::invalid) {
+						has_field = true;
+					}
+				} else {
+					try {
+						const Value& temp = device.get_entry(field);
+						cache[field] = temp;
+						has_field = true;
+					} catch (const canopen_error& err){
+						DEBUG_LOG("  ("<<err.what()<<")");
+						cache[field] = Value(); // invalid value
+					}
+				}
+
+				if (has_field) {
+					const std::string& value = cache[field].to_string().substr(0,value_expected.length());
+					if (value_expected == value) {
+						DEBUG_LOG("  "<<field<<": "<<value<<" == "<<value_expected<<" (expected) -> continue.");
+					} else {
+						DEBUG_LOG("  "<<field<<": "<<value<<" != "<<value_expected<<" (expected) -> break.");
+						fits = false;
+					}
+				} else {
+					DEBUG_LOG("  Field does not exist -> break...");
+					fits = false;
+				}
+
+				if (!fits) {
+					break;
+				}
+
+			}
+
+			if (fits) {
+				
+				DEBUG_LOG("  "<<filename<<" fits.");
+				const std::string path = m_library_path + "/"+filename;
+				assert(fs::exists(path));
+				
+				m_map.clear();
+				EDSReader reader(m_map);
+				bool success = reader.load_file(path);
+
+				if (!success) {
+					ERROR("[EDSLibrary::load_manufacturer_eds] Loading file not successful.");
+					return false;
+				}
+
+				success = reader.import_entries();
+
+				if (!success) {
+					ERROR("[EDSLibrary::load_manufacturer_eds] Importing entries failed.");
+					return false;
+				}
+
+				return true;
+
+			} else {
+				DEBUG_LOG("  "<<filename<<" does not fit.");
+			}
+
+		}
+
+		DEBUG_LOG("No suitable manufacturer EDS file found.");
+		return false;
+
+	}
+
+	bool EDSLibrary::load_manufacturer_eds_deprecated(uint32_t vendor_id, uint32_t product_code, uint32_t revision_number) {
 		assert(m_ready);
 
 		// check if there is an EDS file for this revision
