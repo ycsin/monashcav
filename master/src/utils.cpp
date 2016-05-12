@@ -185,7 +185,7 @@ AccessType Utils::string_to_access_type(std::string str) {
 	} else if (str == "rw" || str == "rwr" || str == "rww") {
 		return AccessType::read_write;
 	} else {
-		ERROR("[Utils::str_to_access_type] Invalid access type string. Returning AccessType::read_write.")
+		ERROR("[Utils::str_to_access_type] Invalid access type string \""<<str<<"\". Returning AccessType::read_write.")
 		return AccessType::read_write;
 	}
 }
