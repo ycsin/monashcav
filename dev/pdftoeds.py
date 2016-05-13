@@ -43,49 +43,82 @@ class Mode(Enum):
 
 class Converter(object):
 	
-	def datatype(string):
+	def datatype(string,subindex=0):
+		pdo_communication_parameter_record = ["0x0005","0x0007","0x0005",
+			"0x0006","0x0005","0x0006","0x0005"]
+		pdo_mapping_parameter_record = ["0x0005",
+			"0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007",
+			"0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007",
+			"0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007",
+			"0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007",
+			"0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007",
+			"0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007",
+			"0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007",
+			"0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007","0x0007"]
+		sdo_parameter_record = ["0x0005","0x0007","0x0007","0x0005"]
+		identity_record = ["0x0005","0x0007","0x0007","0x0007","0x0007"]
+		os_debug_record = ["0x0005","0x000A","0x0005","0x000A"]
+		os_command_record = ["0x0005","0x000A","0x0005","0x000A"]
+		interpolation_time_period_record = ["0x0005","0x0005","0x0002"]
+		interpolation_data_configuration_record = ["0x0005","0x0007","0x0007",
+			"0x0005","0x0006","0x0005","0x0005"]
+		vl_velocity_acceleration_deceleration_record = ["0x0005","0x0007","0x0003"]
 		types = {
-			"boolean": "0x0001",
-			"integer8": "0x0002",
-			"integer16": "0x0003",
-			"integer32": "0x0004",
-			"unsigned8": "0x0005",
-			"unsigned16": "0x0006",
-			"unsigned32": "0x0007",
-			"real32": "0x0008",
-			"visible_string": "0x0009",
-			"octet_string": "0x000A",
-			"unicode_string": "0x000B",
-			"time_of_day": "0x000C",
-			"time_difference": "0x000D",
-			"domain": "0x000F",
-			"integer24": "0x0010",
-			"real64": "0x0011",
-			"integer40": "0x0012",
-			"integer48": "0x0013",
-			"integer56": "0x0014",
-			"integer64": "0x0015",
-			"unsigned24": "0x0016",
-			"unsigned40": "0x0018",
-			"unsigned48": "0x0019",
-			"unsigned56": "0x001A",
-			"unsigned64": "0x001B",
-			"pdo_communication_parameter": "0x0020",
-			"pdo communication parameter": "0x0020",
-			"PDO communication parameter record": "0x0020",
-			"pdo_mapping": "0x0021",
-			"pdo mapping": "0x0021",
-			"PDO mapping parameter record": "0x0021",
-			"sdo_parameter": "0x0022",
-			"sdo parameter": "0x0022",
-			"sdo parameter record": "0x0022",
-			"identity": "0x0023",
-			"Manufacturer-specific": "0x0040",
-			"Manufacturer specific": "0x0040"
+			"boolean": ["0x0001"],
+			"integer8": ["0x0002"],
+			"integer16": ["0x0003"],
+			"integer32": ["0x0004"],
+			"unsigned8": ["0x0005"],
+			"unsigned16": ["0x0006"],
+			"unsigned32": ["0x0007"],
+			"real32": ["0x0008"],
+			"visible_string": ["0x0009"],
+			"octet_string": ["0x000A"],
+			"unicode_string": ["0x000B"],
+			"time_of_day": ["0x000C"],
+			"time_difference": ["0x000D"],
+			"domain": ["0x000F"],
+			"integer24": ["0x0010"],
+			"real64": ["0x0011"],
+			"integer40": ["0x0012"],
+			"integer48": ["0x0013"],
+			"integer56": ["0x0014"],
+			"integer64": ["0x0015"],
+			"unsigned24": ["0x0016"],
+			"unsigned40": ["0x0018"],
+			"unsigned48": ["0x0019"],
+			"unsigned56": ["0x001A"],
+			"unsigned64": ["0x001B"],
+			"pdo_communication_parameter": pdo_communication_parameter_record,#["0x0020"],
+			"pdo communication parameter": pdo_communication_parameter_record,#["0x0020"],
+			"PDO communication parameter record": pdo_communication_parameter_record,#["0x0020"],
+			"pdo_mapping": pdo_mapping_parameter_record,#["0x0021"],
+			"pdo mapping": pdo_mapping_parameter_record,#["0x0021"],
+			"PDO mapping parameter record": pdo_mapping_parameter_record,#["0x0021"],
+			"sdo_parameter": sdo_parameter_record,#["0x0022"],
+			"sdo parameter": sdo_parameter_record,#["0x0022"],
+			"sdo parameter record": sdo_parameter_record,#["0x0022"],
+			"identity": identity_record,#["0x0023"],
+			"Manufacturer-specific": ["0x0040"],
+			"Manufacturer specific": ["0x0040"],
+			# CiA 301
+			"OS debug record": os_debug_record,
+			"OS command record": os_command_record,
+			# CiA 402
+			"Interpolation time period record (0080h)": interpolation_time_period_record,
+			"Interpolation time period record": interpolation_time_period_record,
+			"Interpolation data configuration record (0081h)": interpolation_data_configuration_record,
+			"Interpolation data configuration record": interpolation_data_configuration_record,
+			"vl velocity acceleration deceleration record (0082h)": vl_velocity_acceleration_deceleration_record,
+			"vl velocity acceleration deceleration record": vl_velocity_acceleration_deceleration_record
 			}
 		for key,value in types.items():
-			if re.match(r"^\s*" + key + "\s*$",string,re.IGNORECASE):
-				return value
+			if re.match(r"^\s*" + re.escape(key) + r"\s*$",string,re.IGNORECASE):
+				if len(value)<=int(str(subindex),16):
+					# no record type
+					return value[0]
+				else:
+					return value[int(str(subindex),16)]
 		
 		print("Unknown data type: "+string)
 		return "# "+string
@@ -116,7 +149,7 @@ class Converter(object):
 		elif re.match(r"^\s*const\s*$",string,re.IGNORECASE):
 			return "const"
 		else:
-			print("Unknown access type: "+string)
+			print("Unknown access type: "+string+" -> using rw")
 			return "rw # "+string
 
 
@@ -220,7 +253,7 @@ class Parser(object):
 		self.dump("ObjectType="+str(Converter.objectcode(map['objectcode']))+" # "+str(map['objectcode']))
 		self.dump("DataType="+str(Converter.datatype(str(map['datatype'])))+" # "+str(map['datatype']))
 		self.dump("# Category: "+str(map['category']))
-		self.dump("AccessType="+str(map['subindices'][-1]['access']))
+		self.dump("AccessType="+Converter.access(str(map['subindices'][-1]['access'])))
 		self.dump("DefaultValue="+str(map['subindices'][-1]['defaultvalue']))
 		self.dump("PDOMapping="+Converter.pdomapping(map['subindices'][-1]['pdomapping'])+" # "+str(map['subindices'][-1]['pdomapping']))
 		self.dump(" ")
@@ -229,8 +262,12 @@ class Parser(object):
 		self.dump("["+str(index)+"sub"+str(subindex)+"]"+rangecomment)
 		self.dump("ParameterName="+str(map['description'])+str(appendix))
 		self.dump("ObjectType=0x007 # VAR")
-		self.dump("DataType="+str(Converter.datatype(str(indexmap['datatype'])))+" # "+str(indexmap['datatype']))
-		self.dump("AccessType="+str(map['access']))
+		if indexmap['objectcode']=="ARRAY" and int(str(subindex),16)==0:
+			# array: number of items is uint8.
+			self.dump("DataType=0x0005 # UNSIGNED8")
+		else:
+			self.dump("DataType="+str(Converter.datatype(str(indexmap['datatype']),subindex))+" # "+str(indexmap['datatype']))
+		self.dump("AccessType="+Converter.access(str(map['access'])))
 		self.dump("# DefaultValue="+str(map['defaultvalue']))
 		self.dump("PDOMapping="+Converter.pdomapping(map['pdomapping'])+" # "+str(map['pdomapping']))
 		self.dump(" ")
