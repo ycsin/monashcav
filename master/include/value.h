@@ -64,14 +64,20 @@ namespace kaco {
 		/// It's seperate because std::string is non-trivial and should not be part of a union.
 		std::string string;
 
+		/// The value if type==Type::octet_string
+		/// It's seperate because std::vector is non-trivial and should not be part of a union.
+		std::vector<uint8_t> octet_string;
+
 		/// Anonymous union containing the value if type!=Tyoe::string
 		union {
 			uint8_t uint8;
 			uint16_t uint16;
 			uint32_t uint32;
+			uint64_t uint64;
 			int8_t int8;
 			int16_t int16;
 			int32_t int32;
+			int64_t int64;
 			float real32;
 			double real64;
 			bool boolean;
@@ -83,11 +89,14 @@ namespace kaco {
 		/// Constructs a uint8 value.
 		Value(uint8_t value);
 
-		/// Constructs a uin16 value.
+		/// Constructs a uint16 value.
 		Value(uint16_t value);
 
-		/// Constructs a uin32 value.
+		/// Constructs a uint32 value.
 		Value(uint32_t value);
+
+		/// Constructs a uint64 value.
+		Value(uint64_t value);
 
 		/// Constructs an int8 value.
 		Value(int8_t value);
@@ -97,6 +106,9 @@ namespace kaco {
 
 		/// Constructs an int32 value.
 		Value(int32_t value);
+
+		/// Constructs an int64 value.
+		Value(int64_t value);
 
 		/// Constructs a real32 value.
 		Value(float value);
@@ -113,6 +125,9 @@ namespace kaco {
 		/// Constructs a string value from a string literal.
 		Value(const char* value);
 
+		/// Constructs a octet string value.
+		Value(const std::vector<uint8_t>& value);
+
 		/// Creates a value given a type and the byte representation (little-endian) in a vector.
 		Value(Type type_, const std::vector<uint8_t>& data);
 
@@ -128,6 +143,9 @@ namespace kaco {
 		/// Casts uint32 to C++ type.
 		operator uint32_t() const;
 
+		/// Casts uint64 to C++ type.
+		operator uint64_t() const;
+
 		/// Casts int8 to C++ type.
 		operator int8_t() const;
 
@@ -136,6 +154,9 @@ namespace kaco {
 
 		/// Casts int32 to C++ type.
 		operator int32_t() const;
+
+		/// Casts int64 to C++ type.
+		operator int64_t() const;
 
 		/// Casts real32 to C++ type.
 		operator float() const;
@@ -148,6 +169,9 @@ namespace kaco {
 
 		/// Casts string to C++ type.
 		operator std::string() const;
+
+		/// Casts octet_string to C++ type.
+		operator std::vector<uint8_t>() const;
 
 		/// Compares equal
 		bool operator==(const Value& other) const;

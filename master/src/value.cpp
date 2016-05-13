@@ -59,6 +59,12 @@ Value::Value(uint32_t value) {
 	uint32 = value;
 }
 
+Value::Value(uint64_t value) {
+	DEBUG_LOG("Creating uint64 value");
+	type = Type::uint64;
+	uint64 = value;
+}
+
 Value::Value(int8_t value) {
 	DEBUG_LOG("Creating int8 value");
 	type = Type::int8;
@@ -75,6 +81,12 @@ Value::Value(int32_t value) {
 	DEBUG_LOG("Creating int32 value");
 	type = Type::int32;
 	int32 = value;
+}
+
+Value::Value(int64_t value) {
+	DEBUG_LOG("Creating int64 value");
+	type = Type::int64;
+	int64 = value;
 }
 
 Value::Value(float value) {
@@ -105,17 +117,24 @@ Value::Value(const char* value) : string(value) {
 	type = Type::string;
 }
 
+Value::Value(const std::vector<uint8_t>& value) : octet_string(value) {
+	DEBUG_LOG("Creating octet string value");
+	type = Type::octet_string;
+}
+
 Value::Value(Type type_, const std::vector<uint8_t>& data) {
 
 	type = type_;
 	
-	if (type != Type::string) {
-		// strings have variable size
+	if (type != Type::string && type != Type::octet_string) {
+		// strings and octet strings have variable size
 		const uint8_t type_size = Utils::get_type_size(type);
 		if (data.size() != type_size) {
 			ERROR("[Value constructor] Wrong byte vector size.");
 			DUMP(data.size());
 			DUMP(type_size);
+			DUMP(Utils::type_to_string(type));
+			abort();
 		}
 	}
 
@@ -151,6 +170,18 @@ Value::Value(Type type_, const std::vector<uint8_t>& data) {
 			break;
 		}
 
+		case Type::uint64: {
+			uint64 = (uint64_t)data[0] + ((uint64_t)data[1] << 8) + ((uint64_t)data[2] << 16) + ((uint64_t)data[3] << 24)
+				+ ((uint64_t)data[4] << 32) + ((uint64_t)data[5] << 40) + ((uint64_t)data[6] << 48) + ((uint64_t)data[7] << 56);
+			break;
+		}
+
+		case Type::int64: {
+			int64 = (int64_t)data[0] + ((int64_t)data[1] << 8) + ((int64_t)data[2] << 16) + ((int64_t)data[3] << 24)
+				+ ((int64_t)data[4] << 32) + ((int64_t)data[5] << 40) + ((int64_t)data[6] << 48) + ((int64_t)data[7] << 56);
+			break;
+		}
+
 		case Type::real32: {
 			// TODO: test this
 			const uint32_t val = (uint32_t)data[0] + ((uint32_t)data[1] << 8) + ((uint32_t)data[2] << 16) + ((uint32_t)data[3] << 24);
@@ -168,6 +199,11 @@ Value::Value(Type type_, const std::vector<uint8_t>& data) {
 
 		case Type::string: {
 			string = std::string(reinterpret_cast<char const*>(data.data()), data.size());
+			break;
+		}
+
+		case Type::octet_string: {
+			octet_string = data;
 			break;
 		}
 
@@ -210,6 +246,18 @@ std::vector<uint8_t> Value::get_bytes() const {
 			break;
 		}
 
+		case Type::uint64: {
+			result.push_back(uint64 & 0xFF);
+			result.push_back((uint64>>8) & 0xFF);
+			result.push_back((uint64>>16) & 0xFF);
+			result.push_back((uint64>>24) & 0xFF);
+			result.push_back((uint64>>32) & 0xFF);
+			result.push_back((uint64>>40) & 0xFF);
+			result.push_back((uint64>>48) & 0xFF);
+			result.push_back((uint64>>56) & 0xFF);
+			break;
+		}
+
 		case Type::int8: {
 			result.push_back(int8);
 			break;
@@ -226,6 +274,18 @@ std::vector<uint8_t> Value::get_bytes() const {
 			result.push_back((int32>>8) & 0xFF);
 			result.push_back((int32>>16) & 0xFF);
 			result.push_back((int32>>24) & 0xFF);
+			break;
+		}
+
+		case Type::int64: {
+			result.push_back(int64 & 0xFF);
+			result.push_back((int64>>8) & 0xFF);
+			result.push_back((int64>>16) & 0xFF);
+			result.push_back((int64>>24) & 0xFF);
+			result.push_back((int64>>32) & 0xFF);
+			result.push_back((int64>>40) & 0xFF);
+			result.push_back((int64>>48) & 0xFF);
+			result.push_back((int64>>56) & 0xFF);
 			break;
 		}
 
@@ -262,6 +322,11 @@ std::vector<uint8_t> Value::get_bytes() const {
 			for (size_t i=0; i<string.length(); ++i) {
 				result.push_back((uint8_t)string[i]);
 			}
+			break;
+		}
+
+		case Type::octet_string: {
+			result = octet_string;
 			break;
 		}
 
@@ -306,6 +371,10 @@ bool Value::operator==(const Value& other) const {
 		case Type::uint32: {
 			return uint32 == (uint32_t) other;
 		}
+
+		case Type::uint64: {
+			return uint64 == (uint64_t) other;
+		}
 			
 		case Type::int8: {
 			return int8 == (int8_t) other;
@@ -317,6 +386,10 @@ bool Value::operator==(const Value& other) const {
 
 		case Type::int32: {
 			return int32 == (int32_t) other;
+		}
+
+		case Type::int64: {
+			return int64 == (int64_t) other;
 		}
 
 		case Type::real32: {
@@ -333,6 +406,11 @@ bool Value::operator==(const Value& other) const {
 
 		case Type::string: {
 			return string == (std::string) other;
+		}
+
+		case Type::octet_string: {
+			// reusing code from value_printer...
+			return to_string() == other.to_string();
 		}
 
 		default: {
@@ -375,13 +453,16 @@ std::string Value::to_string() const {
 CO_VALUE_TYPE_CAST_OP_INT(uint8);
 CO_VALUE_TYPE_CAST_OP_INT(uint16);
 CO_VALUE_TYPE_CAST_OP_INT(uint32);
+CO_VALUE_TYPE_CAST_OP_INT(uint64);
 CO_VALUE_TYPE_CAST_OP_INT(int8);
 CO_VALUE_TYPE_CAST_OP_INT(int16);
 CO_VALUE_TYPE_CAST_OP_INT(int32);
+CO_VALUE_TYPE_CAST_OP_INT(int64);
 CO_VALUE_TYPE_CAST_OP(bool, boolean);
 CO_VALUE_TYPE_CAST_OP(float, real32);
 CO_VALUE_TYPE_CAST_OP(double, real64);
 CO_VALUE_TYPE_CAST_OP(std::string, string);
+CO_VALUE_TYPE_CAST_OP(std::vector<uint8_t>, octet_string);
 
 //-------------------//
 // std::cout Printer //
@@ -403,6 +484,10 @@ namespace value_printer {
 			case Type::uint32: {
 				return os << static_cast<uint32_t>(val);
 			}
+
+			case Type::uint64: {
+				return os << static_cast<uint64_t>(val);
+			}
 				
 			case Type::int8: {
 				// 1-byte types are printed as char by default -> double casting.
@@ -415,6 +500,10 @@ namespace value_printer {
 
 			case Type::int32: {
 				return os << static_cast<int32_t>(val);
+			}
+
+			case Type::int64: {
+				return os << static_cast<int64_t>(val);
 			}
 
 			case Type::real32: {
@@ -430,7 +519,20 @@ namespace value_printer {
 			}
 
 			case Type::string: {
-			    return os << static_cast<std::string>(val);
+				return os << static_cast<std::string>(val);
+			}
+
+			case Type::octet_string: {
+				const auto& octet_string = val.get_bytes();
+				os << "[";
+				for (size_t i=0; i<octet_string.size(); ++i) {
+					// 1-byte types are printed as char by default -> casting.
+					os << static_cast<uint32_t>(octet_string[i]);
+					if (i+1<octet_string.size()) {
+						os << ",";
+					}
+				}
+				return os << "]";
 			}
 
 			default: {
