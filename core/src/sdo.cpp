@@ -193,10 +193,9 @@ void SDO::process_incoming_message(const Message& message) {
 
 SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t index, uint8_t subindex, const std::array<uint8_t,4>& data) {
 
-	// We lock this method so responses are not mixed up.
-	// TODO: We could relax this and lock only requests to the same node
-	//       since callbacks check for the correct node ID.
-	std::lock_guard<std::mutex> scoped_lock(m_send_and_wait_mutex);
+	// We lock this method so requests and responses to/from the same node are not mixed up.
+	// SDO callbacks are specific to their node id.
+	std::lock_guard<std::mutex> scoped_lock(m_send_and_wait_mutex[node_id]);
 
 	std::promise<SDOResponse> received_promise;
 	std::future<SDOResponse> received_future = received_promise.get_future();

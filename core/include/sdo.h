@@ -35,6 +35,7 @@
 #include <vector>
 #include <mutex>
 #include <list>
+#include <unordered_map>
 
 #include "message.h"
 #include "sdo_response.h"
@@ -148,7 +149,8 @@ namespace kaco {
 		mutable std::mutex m_receive_callbacks_mutex;
 
 		// We lock send_sdo_and_wait() because concurrent responses could be confused.
-		mutable std::mutex m_send_and_wait_mutex;
+		//mutable std::array<std::mutex,256> m_send_and_wait_mutex;
+		mutable std::unordered_map<uint8_t,std::mutex> m_send_and_wait_mutex;
 
 		uint8_t size_flag(uint8_t size);
 
