@@ -44,9 +44,10 @@
 
 namespace kaco {
 
-SDO::SDO(Core& core) 
-	: m_core(core)
-	{ }
+SDO::SDO(Core& core)
+	: m_core(core) {
+	m_send_and_wait_receivers.fill(received_unassigned_sdo);
+}
 
 void SDO::download(uint8_t node_id, uint16_t index, uint8_t subindex, uint32_t size, const std::vector<uint8_t>& data) {
 
@@ -166,55 +167,31 @@ void SDO::process_incoming_message(const Message& message) {
 
 	DEBUG_LOG("Received SDO (transmit/server) from node "<<(unsigned)response.node_id);
 
-	// call registered callbacks
-	bool found_callback = false;
+	// This calls either a callback which was registered by send_sdo_and_wait or received_unassigned_sdo().
+	m_send_and_wait_receivers[response.node_id](response);
 
-	{
-		std::lock_guard<std::mutex> scoped_lock(m_receive_callbacks_mutex);
-		for (const SDOReceivedCallback& callback : m_receive_callbacks) {
-			// TODO: check for correct server command specifier?
-			// INFO: We should not check for index/subindex because this fails
-			//       for segmented transfer (or otherwise identify segmented transfers).
-			if (callback.node_id == response.node_id) {
-				found_callback = true;
-				// This is not async because callbacks are only registered internally.
-				// response is passed by value so it could be called asynchronously.
-				callback.callback(response);
-			}
-		}
-	}
-
-	if (!found_callback) {
-		DEBUG_LOG("Received unassigned SDO (transmit/server)");
-		DEBUG(response.print();)
-	}
+	// TODO: Also call custom callbacks, not only internal ones.
 
 }
 
 SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t index, uint8_t subindex, const std::array<uint8_t,4>& data) {
 
-	// We lock this method so requests and responses to/from the same node are not mixed up.
+	// We lock this method so requests and responses to/from the same node are not mixed up
+	// and m_send_and_wait_receivers[node_id] manipulation is safe.
 	// SDO callbacks are specific to their node id.
+	// assert: m_send_and_wait_mutex.size() == 256 > std::numeric_limits<uint8_t>::max()
 	std::lock_guard<std::mutex> scoped_lock(m_send_and_wait_mutex[node_id]);
 
 	std::promise<SDOResponse> received_promise;
 	std::future<SDOResponse> received_future = received_promise.get_future();
 
-	SDOReceivedCallback receiver = { node_id, [&] (SDOResponse response) {
+	m_send_and_wait_receivers[node_id] = [&] (SDOResponse response) {
 		// This is only called if the response comes from the correct node
 		//   (process_incoming_message takes care of this).
 		// The reference to received_promise is assured to be alive
-		//   since the receiver is removed before this method returns
-		//   and the callback loop is synchronized with the removal.
+		//   since the receiver is removed before this method returns.
 		received_promise.set_value(response);
-	} };
-	
-	std::list<SDOReceivedCallback>::const_iterator receiver_handle;
-	{
-		std::lock_guard<std::mutex> scoped_lock(m_receive_callbacks_mutex);
-		m_receive_callbacks.push_front(std::move(receiver));
-		receiver_handle = m_receive_callbacks.cbegin();
-	}
+	};
 
 	// send message
 	Message message;
@@ -234,11 +211,8 @@ SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t in
 	const auto timeout = std::chrono::milliseconds(SDO_RESPONSE_TIMEOUT_MS);
 	const auto status = received_future.wait_for(timeout);
 
-	{
-		std::lock_guard<std::mutex> scoped_lock(m_receive_callbacks_mutex);
-		// std::list iterators to existing elements are never invalidated
-		m_receive_callbacks.erase(receiver_handle);
-	}
+	// remove receiver
+	m_send_and_wait_receivers[node_id] = received_unassigned_sdo;
 
 	if (status == std::future_status::timeout) {
 		throw sdo_error(sdo_error::type::response_timeout, "Timeout was "+std::to_string(timeout.count())+"ms.");
@@ -247,6 +221,12 @@ SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t in
 	return received_future.get();
 
 }
+
+void SDO::received_unassigned_sdo(SDOResponse response) {
+	DEBUG_LOG("Received unassigned SDO (transmit/server):");
+	DEBUG(response.print();)
+}
+
 
 uint8_t SDO::size_flag(uint8_t size) {
 	assert(size>0);

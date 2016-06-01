@@ -59,21 +59,10 @@ namespace kaco {
 
 	public:
 
-		/// Type of a sdo message receiver function with it's node id
+		/// Type of a sdo message receiver function
 		/// Important: Never call send_sdo_and_wait or process_incoming_message
 		///   from within (-> deadlock)!
-		struct SDOReceivedCallback {
-
-			/// Type of the callback
-			using Callback = std::function< void(SDOResponse) >;
-			
-			/// Node id
-			uint8_t node_id;
-
-			/// The callback
-			Callback callback;
-			
-		};
+		using SDOReceivedCallback = std::function< void(SDOResponse) >;
 
 		/// Constructor
 		/// \param core Reference to the Core
@@ -144,15 +133,20 @@ namespace kaco {
 		
 		Core& m_core;
 
-		/// \todo Rename to m_server_sdo_callbacks and add m_client_sdo_callbacks.
-		std::list<SDOReceivedCallback> m_receive_callbacks; // list because of erase() and persistent iterators
-		mutable std::mutex m_receive_callbacks_mutex;
+		// TODO: Add m_server_sdo_callbacks and add m_client_sdo_callbacks for custom usage.
+		//std::list<SDOReceivedCallback> m_receive_callbacks; // list because of erase() and persistent iterators
+		//mutable std::mutex m_receive_callbacks_mutex;
 
-		// We lock send_sdo_and_wait() because concurrent responses could be confused.
-		//mutable std::array<std::mutex,256> m_send_and_wait_mutex;
-		mutable std::unordered_map<uint8_t,std::mutex> m_send_and_wait_mutex;
+		std::array<SDOReceivedCallback,256> m_send_and_wait_receivers;
+
+		// We lock send_sdo_and_wait() on per-node-basis because concurrent responses could be confused
+		// and because m_receivers manipulation must be synchronized
+		mutable std::array<std::mutex,256> m_send_and_wait_mutex;
 
 		uint8_t size_flag(uint8_t size);
+
+		/// Dummy callback. Prints a debug message.
+		static void received_unassigned_sdo(SDOResponse);
 
 	};
 
