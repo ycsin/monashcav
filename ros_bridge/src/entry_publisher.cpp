@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "logger.h"
 #include "ros/ros.h"
+#include "sdo_error.h"
 
 #include "std_msgs/UInt8.h"
 #include "std_msgs/UInt16.h"
@@ -99,60 +100,67 @@ void EntryPublisher::advertise() {
 
 void EntryPublisher::publish() {
 
-	Value value = m_device.get_entry(m_entry_name, m_array_index, m_access_method);
+	try {
 
-	switch(m_type) {
-		case Type::uint8: {
-			std_msgs::UInt8 msg;
-			msg.data = value; // auto cast!
-			m_publisher.publish(msg);
-			break;
+		Value value = m_device.get_entry(m_entry_name, m_array_index, m_access_method);
+
+		switch(m_type) {
+			case Type::uint8: {
+				std_msgs::UInt8 msg;
+				msg.data = value; // auto cast!
+				m_publisher.publish(msg);
+				break;
+			}
+			case Type::uint16: {
+				std_msgs::UInt16 msg;
+				msg.data = value; // auto cast!
+				m_publisher.publish(msg);
+				break;
+			}
+			case Type::uint32: {
+				std_msgs::UInt32 msg;
+				msg.data = value; // auto cast!
+				m_publisher.publish(msg);
+				break;
+			}
+			case Type::int8: {
+				std_msgs::Int8 msg;
+				msg.data = value; // auto cast!
+				m_publisher.publish(msg);
+				break;
+			}
+			case Type::int16: {
+				std_msgs::Int16 msg;
+				msg.data = value; // auto cast!
+				m_publisher.publish(msg);
+				break;
+			}
+			case Type::int32: {
+				std_msgs::Int32 msg;
+				msg.data = value; // auto cast!
+				m_publisher.publish(msg);
+				break;
+			}
+			case Type::boolean: {
+				std_msgs::Bool msg;
+				msg.data = value; // auto cast!
+				m_publisher.publish(msg);
+				break;
+			}
+			case Type::string: {
+				std_msgs::String msg;
+				msg.data = (std::string) value;
+				m_publisher.publish(msg);
+				break;
+			}
+			default: {
+				ERROR("[EntryPublisher::advertise] Invalid entry type.")
+			}
 		}
-		case Type::uint16: {
-			std_msgs::UInt16 msg;
-			msg.data = value; // auto cast!
-			m_publisher.publish(msg);
-			break;
-		}
-		case Type::uint32: {
-			std_msgs::UInt32 msg;
-			msg.data = value; // auto cast!
-			m_publisher.publish(msg);
-			break;
-		}
-		case Type::int8: {
-			std_msgs::Int8 msg;
-			msg.data = value; // auto cast!
-			m_publisher.publish(msg);
-			break;
-		}
-		case Type::int16: {
-			std_msgs::Int16 msg;
-			msg.data = value; // auto cast!
-			m_publisher.publish(msg);
-			break;
-		}
-		case Type::int32: {
-			std_msgs::Int32 msg;
-			msg.data = value; // auto cast!
-			m_publisher.publish(msg);
-			break;
-		}
-		case Type::boolean: {
-			std_msgs::Bool msg;
-			msg.data = value; // auto cast!
-			m_publisher.publish(msg);
-			break;
-		}
-		case Type::string: {
-			std_msgs::String msg;
-			msg.data = (std::string) value;
-			m_publisher.publish(msg);
-			break;
-		}
-		default: {
-			ERROR("[EntryPublisher::advertise] Invalid entry type.")
-		}
+		
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in EntryPublisher::publish(): "<<error.what());
 	}
 
 }

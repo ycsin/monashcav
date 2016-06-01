@@ -31,6 +31,7 @@
  
 #include "bridge.h"
 #include "logger.h"
+#include "sdo_error.h"
 #include "ros/ros.h"
 
 #include <future>

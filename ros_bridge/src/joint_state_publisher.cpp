@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "logger.h"
 #include "profiles.h"
+#include "sdo_error.h"
 
 #include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
@@ -84,30 +85,37 @@ void JointStatePublisher::advertise() {
 
 void JointStatePublisher::publish() {
 
-	if (!m_initialized) {
-		throw std::runtime_error("[JointStatePublisher] publish() called before advertise().");
+	try {
+
+		if (!m_initialized) {
+			throw std::runtime_error("[JointStatePublisher] publish() called before advertise().");
+		}
+
+		sensor_msgs::JointState js;
+
+		js.name.resize(1);
+		js.position.resize(1);
+
+		// only position supported yet.
+		js.velocity.resize(0);
+		js.effort.resize(0);
+
+		js.name[0] = m_topic_name;
+
+		const int32_t pos = m_device.get_entry(m_position_actual_field);
+		js.header.stamp = ros::Time::now();
+		js.position[0] = pos_to_rad(pos);
+
+		DEBUG_LOG("Sending JointState message");
+		DEBUG_DUMP(pos);
+		DEBUG_DUMP(js.position[0]);
+
+		m_publisher.publish(js);
+
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in JointStatePublisher::publish(): "<<error.what());
 	}
-	
-	sensor_msgs::JointState js;
-
-	js.name.resize(1);
-	js.position.resize(1);
-
-	// only position supported yet.
-	js.velocity.resize(0);
-	js.effort.resize(0);
-
-	js.name[0] = m_topic_name;
-
-	const int32_t pos = m_device.get_entry(m_position_actual_field);
-	js.header.stamp = ros::Time::now();
-	js.position[0] = pos_to_rad(pos);
-
-	DEBUG_LOG("Sending JointState message");
-	DEBUG_DUMP(pos);
-	DEBUG_DUMP(js.position[0]);
-
-	m_publisher.publish(js);
 
 }
 

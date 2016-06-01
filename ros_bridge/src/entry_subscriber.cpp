@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "logger.h"
 #include "ros/ros.h"
+#include "sdo_error.h"
 
 #include <string>
 
@@ -89,43 +90,83 @@ void EntrySubscriber::advertise() {
 }
 
 void EntrySubscriber::receive_uint8(const std_msgs::UInt8& msg) {
-	DEBUG_LOG("Recieved msg: "<<msg.data);
-	m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	try {
+		DEBUG_LOG("Recieved msg: "<<msg.data);
+		m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in EntrySubscriber::receive_uint8(): "<<error.what());
+	}
 }
 
 void EntrySubscriber::receive_uint16(const std_msgs::UInt16& msg) {
-	DEBUG_LOG("Recieved msg: "<<msg.data);
-	m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	try {
+		DEBUG_LOG("Recieved msg: "<<msg.data);
+		m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in EntrySubscriber::receive_uint16(): "<<error.what());
+	}
 }
 
 void EntrySubscriber::receive_uint32(const std_msgs::UInt32& msg) {
-	DEBUG_LOG("Recieved msg: "<<msg.data);
-	m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	try {
+		DEBUG_LOG("Recieved msg: "<<msg.data);
+		m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in EntrySubscriber::receive_uint32(): "<<error.what());
+	}
 }
 
 void EntrySubscriber::receive_int8(const std_msgs::Int8& msg) {
-	DEBUG_LOG("Recieved msg: "<<msg.data);
-	m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	try {
+		DEBUG_LOG("Recieved msg: "<<msg.data);
+		m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in EntrySubscriber::receive_int8(): "<<error.what());
+	}
 }
 
 void EntrySubscriber::receive_int16(const std_msgs::Int16& msg) {
-	DEBUG_LOG("Recieved msg: "<<msg.data);
-	m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	try {
+		DEBUG_LOG("Recieved msg: "<<msg.data);
+		m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in EntrySubscriber::receive_int16(): "<<error.what());
+	}
 }
 
 void EntrySubscriber::receive_int32(const std_msgs::Int32& msg) {
-	DEBUG_LOG("Recieved msg: "<<msg.data);
-	m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	try {
+		DEBUG_LOG("Recieved msg: "<<msg.data);
+		m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in EntrySubscriber::receive_int32(): "<<error.what());
+	}
 }
 
 void EntrySubscriber::receive_boolean(const std_msgs::Bool& msg) {
-	DEBUG_LOG("Recieved msg: "<<msg.data);
-	m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	try {
+		DEBUG_LOG("Recieved msg: "<<msg.data);
+		m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in EntrySubscriber::receive_boolean(): "<<error.what());
+	}
 }
 
 void EntrySubscriber::receive_string(const std_msgs::String& msg) {
-	DEBUG_LOG("Recieved msg: "<<msg.data);
-	m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	try {
+		DEBUG_LOG("Recieved msg: "<<msg.data);
+		m_device.set_entry(m_entry_name, msg.data, m_array_index, m_access_method); // auto cast to Value!
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in EntrySubscriber::receive_string(): "<<error.what());
+	}
 }
 
 } // end namespace kaco

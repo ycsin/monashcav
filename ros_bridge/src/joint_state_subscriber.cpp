@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "logger.h"
 #include "profiles.h"
+#include "sdo_error.h"
 
 #include "ros/ros.h"
 
@@ -82,14 +83,21 @@ void JointStateSubscriber::advertise() {
 
 void JointStateSubscriber::receive(const sensor_msgs::JointState& msg) {
 
-	assert(msg.position.size()>0);
-	const int32_t pos = rad_to_pos(msg.position[0]);
+	try {
+	
+		assert(msg.position.size()>0);
+		const int32_t pos = rad_to_pos(msg.position[0]);
 
-	DEBUG_LOG("Received JointState message");
-	DEBUG_DUMP(pos);
-	DEBUG_DUMP(msg.position[0]);
+		DEBUG_LOG("Received JointState message");
+		DEBUG_DUMP(pos);
+		DEBUG_DUMP(msg.position[0]);
 
-	m_device.execute("set_target_position",pos);
+		m_device.execute("set_target_position",pos);
+		
+	} catch (const sdo_error& error) {
+		// TODO: only catch timeouts?
+		ERROR("Exception in JointStateSubscriber::receive(): "<<error.what());
+	}
 
 }
 
