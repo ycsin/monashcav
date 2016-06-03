@@ -33,14 +33,12 @@
 #include "core.h"
 #include "logger.h"
 #include "sdo_error.h"
+#include "global_config.h"
 
 #include <iostream>
 #include <chrono>
 #include <cassert>
 #include <future>
-
-// Set by CMake:
-// #define SDO_RESPONSE_TIMEOUT_MS ...
 
 namespace kaco {
 
@@ -214,7 +212,7 @@ SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t in
 	DEBUG_LOG("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id
 		<< " command=" << command << " index=" << index << " subindex=" << subindex << " WAIT.");
 
-	const auto timeout = std::chrono::milliseconds(SDO_RESPONSE_TIMEOUT_MS);
+	const auto timeout = std::chrono::milliseconds(Config::sdo_response_timeout_ms);
 	const auto status = received_future.wait_for(timeout);
 
 	// remove receiver

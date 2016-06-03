@@ -36,6 +36,7 @@
 #include "dictionary_error.h"
 #include "profiles.h"
 #include "sdo_error.h"
+#include "global_config.h"
 
 #include <cassert>
 #include <algorithm>
@@ -84,8 +85,21 @@ bool Device::has_entry(const std::string& entry_name) {
 
 Value Device::get_entry_via_sdo(uint32_t index, uint8_t subindex, Type type) {
 
-	std::vector<uint8_t> data = m_core.sdo.upload(m_node_id, index, subindex);
-	return Value(type, data);
+	sdo_error last_error(sdo_error::type::unknown);
+
+	for (size_t i=0; i<Config::repeats_on_sdo_timeout+1; ++i) {
+		try {
+			std::vector<uint8_t> data = m_core.sdo.upload(m_node_id, index, subindex);
+			return Value(type, data);
+		} catch (const sdo_error& error) {
+			last_error = error;
+			DEBUG_LOG("[Device::get_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
+				<<" of "<<std::to_string(Config::repeats_on_sdo_timeout)<<".");
+		}
+	}
+	
+	throw sdo_error(sdo_error::type::response_timeout, "Device::get_entry_via_sdo() failed after "
+		+std::to_string(Config::repeats_on_sdo_timeout)+" repeats. Last error: "+std::string(last_error.what()));
 
 }
 
