@@ -108,7 +108,7 @@ catkin_init_workspace
 KaCanOpen without the ROS part can be built easily using CMake:
 
 ~~~bash
-git clone git@gitlab.ira.uka.de:thomaskeh/kacanopen.git
+git clone git@github.com:KITmedical/kacanopen.git
 cd kacanopen
 mkdir build
 cd build
@@ -124,7 +124,7 @@ Your KaCanOpen repository must reside or be symlinked inside src:
 
 ~~~bash
 cd ~/arbitrary_path/catkin_ws/src
-git clone git@gitlab.ira.uka.de:thomaskeh/kacanopen.git
+git clone git@github.com:KITmedical/kacanopen.git
 ~~~
 
 Now you can build it:

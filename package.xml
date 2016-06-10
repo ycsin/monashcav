@@ -7,7 +7,7 @@
 	<maintainer email="thomas.keh@student.kit.edu">Thomas Keh</maintainer>
 	<author email="thomas.keh@student.kit.edu">Thomas Keh</author>
 	<license>BSD</license>
-	<url type="website">https://gitlab.ira.uka.de/thomaskeh/kacanopen/tree/master</url>
+	<url type="website">https://github.com/KITmedical/kacanopen</url>
 
 	<buildtool_depend>catkin</buildtool_depend>
 	<build_depend>roscpp</build_depend>

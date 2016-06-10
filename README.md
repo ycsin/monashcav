@@ -23,7 +23,7 @@ First make sure you've got a recent C++ compiler with C++14 support ([GCC](https
 KaCanOpen without the ROS part can be built easily using CMake:
 
 ~~~bash
-git clone git@gitlab.ira.uka.de:thomaskeh/kacanopen.git
+git clone git@github.com:KITmedical/kacanopen.git
 cd kacanopen
 mkdir build
 cd build
@@ -39,7 +39,7 @@ KaCanOpen including the ROS part must be built using [Catkin](http://wiki.ros.or
 
 ~~~bash
 cd your_catkin_workspace/src
-git clone git@gitlab.ira.uka.de:thomaskeh/kacanopen.git
+git clone git@github.com:KITmedical/kacanopen.git
 cd ..
 catkin_make -DDRIVER=<driver>
 ~~~
