@@ -174,7 +174,7 @@ void SDO::process_incoming_message(const Message& message) {
 
 SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t index, uint8_t subindex, const std::array<uint8_t,4>& data) {
 
-	DEBUG_LOG("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id
+	DEBUG_LOG_EXHAUSTIVE("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id
 		<< " command=" << command << " index=" << index << " subindex=" << subindex << " START.");
 
 	// We lock this method so requests and responses to/from the same node are not mixed up
@@ -209,7 +209,7 @@ SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t in
 	message.data[7] = data[3];
 	m_core.send(message);
 
-	DEBUG_LOG("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id
+	DEBUG_LOG_EXHAUSTIVE("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id
 		<< " command=" << command << " index=" << index << " subindex=" << subindex << " WAIT.");
 
 	const auto timeout = std::chrono::milliseconds(Config::sdo_response_timeout_ms);
@@ -219,12 +219,12 @@ SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t in
 	m_send_and_wait_receivers[node_id] = received_unassigned_sdo;
 
 	if (status == std::future_status::timeout) {
-		DEBUG_LOG("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id
+		DEBUG_LOG_EXHAUSTIVE("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id
 			<< " command=" << command << " index=" << index << " subindex=" << subindex << " TIMEOUT.");
 		throw sdo_error(sdo_error::type::response_timeout, "Timeout was "+std::to_string(timeout.count())+"ms.");
 	}
 
-	DEBUG_LOG("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id
+	DEBUG_LOG_EXHAUSTIVE("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id
 		<< " command=" << command << " index=" << index << " subindex=" << subindex << " DONE.");
 
 	return received_future.get();
