@@ -7,6 +7,7 @@ This is a yet incomplete list of features which are planned for the future. Feel
 * __Bridge:__ Rename ros_bridge to something that is not as easily confused with _the_ rosbridge (http://wiki.ros.org/rosbridge_suite), e.g. kacanopen_ros
 * __Bridge:__ Implement a ROS service for accessing any dictionary entry of a slave by name.
 * __Bridge:__ Subscribers / Publishers: Allow configuration of queue_size.
+* __Bridge:__ Trigger publishing on entry change.
 * __Core:__ Automatically map PDOs like they are configured in slave's dictionary.
 * __Core:__ Add methods for manipulating PDO mapping configuration in slave's dictionary.
 * __Core:__ Add ability to remove/change existing PDO transmitters / receivers / mappings.
