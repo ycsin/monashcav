@@ -84,6 +84,5 @@ int main() {
 	PRINT("Device name: "<<result);
 
 	std::this_thread::sleep_for(std::chrono::seconds(3));
-	core.stop();
 
 }

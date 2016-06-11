@@ -108,6 +108,4 @@ int main() {
 
 	}
 
-	master.stop();
-
 }
