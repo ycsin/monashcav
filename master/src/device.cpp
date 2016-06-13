@@ -93,13 +93,15 @@ Value Device::get_entry_via_sdo(uint32_t index, uint8_t subindex, Type type) {
 			return Value(type, data);
 		} catch (const sdo_error& error) {
 			last_error = error;
-			DEBUG_LOG("[Device::get_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
-				<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
+			if (i<Config::repeats_on_sdo_timeout) {
+				DEBUG_LOG("[Device::get_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
+					<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
+			}
 		}
 	}
 	
 	throw sdo_error(sdo_error::type::response_timeout, "Device::get_entry_via_sdo() failed after "
-		+std::to_string(Config::repeats_on_sdo_timeout)+" repeats. Last error: "+std::string(last_error.what()));
+		+std::to_string(Config::repeats_on_sdo_timeout+1)+" repeats. Last error: "+std::string(last_error.what()));
 
 }
 
@@ -144,8 +146,23 @@ Type Device::get_entry_type(const std::string& entry_name) {
 
 void Device::set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& value) {
 
-	const auto& bytes = value.get_bytes();
-	m_core.sdo.download(m_node_id,index,subindex,bytes.size(),bytes);
+	sdo_error last_error(sdo_error::type::unknown);
+
+	for (size_t i=0; i<Config::repeats_on_sdo_timeout+1; ++i) {
+		try {
+			const auto& bytes = value.get_bytes();
+			m_core.sdo.download(m_node_id,index,subindex,bytes.size(),bytes);
+		} catch (const sdo_error& error) {
+			last_error = error;
+			if (i<Config::repeats_on_sdo_timeout) {
+				DEBUG_LOG("[Device::set_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
+					<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
+			}
+		}
+	}
+
+	throw sdo_error(sdo_error::type::response_timeout, "Device::set_entry_via_sdo() failed after "
+		+std::to_string(Config::repeats_on_sdo_timeout+1)+" repeats. Last error: "+std::string(last_error.what()));
 
 }
 
