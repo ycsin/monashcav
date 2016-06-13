@@ -152,6 +152,7 @@ void Device::set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& va
 		try {
 			const auto& bytes = value.get_bytes();
 			m_core.sdo.download(m_node_id,index,subindex,bytes.size(),bytes);
+			return;
 		} catch (const sdo_error& error) {
 			last_error = error;
 			if (i<Config::repeats_on_sdo_timeout) {
