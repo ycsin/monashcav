@@ -166,7 +166,10 @@ void SDO::process_incoming_message(const Message& message) {
 	DEBUG_LOG("Received SDO (transmit/server) from node "<<(unsigned)response.node_id<<". thread=" << std::this_thread::get_id()) ;
 
 	// This calls either a callback which was registered by send_sdo_and_wait or received_unassigned_sdo().
-	m_send_and_wait_receivers[response.node_id](response);
+	{
+		std::lock_guard<std::mutex> scoped_lock(m_send_and_wait_receiver_mutexes[response.node_id]);
+		m_send_and_wait_receivers[response.node_id](response);
+	}
 
 	// TODO: Also call custom callbacks, not only internal ones.
 
@@ -186,13 +189,16 @@ SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t in
 	std::promise<SDOResponse> received_promise;
 	std::future<SDOResponse> received_future = received_promise.get_future();
 
-	m_send_and_wait_receivers[node_id] = [&] (SDOResponse response) {
-		// This is only called if the response comes from the correct node
-		//   (process_incoming_message takes care of this).
-		// The reference to received_promise is assured to be alive
-		//   since the receiver is removed before this method returns.
-		received_promise.set_value(response);
-	};
+	{
+		std::lock_guard<std::mutex> scoped_lock(m_send_and_wait_receiver_mutexes[node_id]);
+		m_send_and_wait_receivers[node_id] = [&] (SDOResponse response) {
+			// This is only called if the response comes from the correct node
+			//   (process_incoming_message takes care of this).
+			// The reference to received_promise is assured to be alive
+			//   since the receiver is removed before this method returns.
+			received_promise.set_value(response);
+		};
+	}
 
 	// send message
 	Message message;
@@ -216,7 +222,10 @@ SDOResponse SDO::send_sdo_and_wait(uint8_t command, uint8_t node_id, uint16_t in
 	const auto status = received_future.wait_for(timeout);
 
 	// remove receiver
-	m_send_and_wait_receivers[node_id] = received_unassigned_sdo;
+	{
+		std::lock_guard<std::mutex> scoped_lock(m_send_and_wait_receiver_mutexes[node_id]);
+		m_send_and_wait_receivers[node_id] = received_unassigned_sdo;
+	}
 
 	if (status == std::future_status::timeout) {
 		DEBUG_LOG_EXHAUSTIVE("SDO::send_sdo_and_wait: thread=" << std::this_thread::get_id() << " node_id=" << node_id

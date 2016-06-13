@@ -94,7 +94,7 @@ Value Device::get_entry_via_sdo(uint32_t index, uint8_t subindex, Type type) {
 		} catch (const sdo_error& error) {
 			last_error = error;
 			DEBUG_LOG("[Device::get_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
-				<<" of "<<std::to_string(Config::repeats_on_sdo_timeout)<<".");
+				<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
 		}
 	}
 	

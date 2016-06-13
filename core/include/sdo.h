@@ -133,13 +133,15 @@ namespace kaco {
 		
 		Core& m_core;
 
+		// Recevicers on per-node basis. Never call send_sdo_and_wait() from inside!
 		// TODO: Add m_server_sdo_callbacks and add m_client_sdo_callbacks for custom usage.
-		//std::list<SDOReceivedCallback> m_receive_callbacks; // list because of erase() and persistent iterators
-		//mutable std::mutex m_receive_callbacks_mutex;
-
+		// IDEA: We could store the promise directly, but this won't obviate synchronization...
 		std::array<SDOReceivedCallback,256> m_send_and_wait_receivers;
 
-		// We lock send_sdo_and_wait() on per-node-basis because concurrent responses could be confused
+		// We must synchronize access to the m_send_and_wait_receivers array entries.
+		mutable std::array<std::mutex,256> m_send_and_wait_receiver_mutexes;
+
+		// We lock send_sdo_and_wait() on per-node basis because concurrent responses could be confused
 		// and because m_receivers manipulation must be synchronized
 		mutable std::array<std::mutex,256> m_send_and_wait_mutex;
 
