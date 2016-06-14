@@ -46,8 +46,8 @@
 
 namespace kaco {
 
-EDSReader::EDSReader(std::map<std::string, Entry>& target)
-	: m_map(target)
+EDSReader::EDSReader(std::unordered_map<Address, Entry>& dictionary, std::unordered_map<std::string, Address>& name_to_address)
+	: m_dictionary(dictionary), m_name_to_address(name_to_address)
 	{ }
 
 bool EDSReader::load_file(std::string filename) {
@@ -170,7 +170,7 @@ bool EDSReader::parse_var(const std::string& section, uint16_t index, uint8_t su
 
 	// --- insert entry --- //
 
-	while (m_map.count(var_name)>0) {
+	while (m_name_to_address.count(var_name)>0) {
 
 		WARN("[EDSReader::parse_var] Entry "<<var_name<<" already exists. Adding or increasing counter.");
 
@@ -197,8 +197,9 @@ bool EDSReader::parse_var(const std::string& section, uint16_t index, uint8_t su
 	DEBUG_LOG("[EDSReader::parse_var] Inserting entry "<<var_name<<".");
 	
 	// This isn't possible because STL would require copy constructor:
-	// m_map[var_name] = std::move(entry);
-	m_map.insert(std::make_pair(var_name, std::move(entry)));
+	// m_dictionary[Address{entry.index,entry.subindex}] = std::move(entry);
+	m_dictionary.insert(std::make_pair(Address{entry.index,entry.subindex}, std::move(entry)));
+	m_name_to_address.insert(std::make_pair(var_name,Address{entry.index,entry.subindex}));
 
 	return true;
 

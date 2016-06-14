@@ -32,27 +32,29 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <regex>
  
 #include <boost/property_tree/ptree.hpp> // property_tree
 
 #include "entry.h"
-#include "types.h"
+#include "address.h"
 
 namespace kaco {
 
 /// This class allows reading EDS files (like standardized in CiA 306)
 /// and inserting all contained entries into a dictionary of type
-/// std::map<std::string, Entry>.
+/// std::unordered_map<Address, Entry> and a map
+/// std::unordered_map<std::string, Address>
 /// It makes use of Boost's property_tree class.
 class EDSReader {
 
 public:
 
 	/// Constructor.
-	/// \param target The dictionary, into which entries should be inserted.
-	EDSReader(std::map<std::string, Entry>& target);
+	/// \param dictionary The dictionary, into which entries should be inserted.
+	/// \param name_to_address Mapping from name to address in dictionary (to be created).
+	EDSReader(std::unordered_map<Address, Entry>& dictionary, std::unordered_map<std::string, Address>& name_to_address);
 
 	/// Loads an EDS file from file system.
 	/// \returns true if successful
@@ -67,8 +69,11 @@ private:
 	/// Enable debug logging.
 	static const bool debug = false;
 
-	/// reference to the dictionary
-	std::map<std::string, Entry>& m_map;
+	/// Reference to the dictionary
+	std::unordered_map<Address, Entry>& m_dictionary;
+
+	/// Reference to the address-name mapping
+	std::unordered_map<std::string, Address>& m_name_to_address;
 	
 	/// This property tree represents the EDS file imported in load_file().
 	/// EDS files have the same syntax like Windows INI files.

@@ -34,12 +34,13 @@
 #include <string>
 #include <vector>
 #include <chrono>
-#include <map>
+#include <unordered_map>
 #include <thread>
 #include <memory>
 
 #include "mapping.h"
 #include "types.h"
+#include "address.h"
 
 namespace kaco {
 
@@ -57,12 +58,13 @@ namespace kaco {
 		/// Constructor.
 		/// \param core Reference to the Core instance (needed to send the PDO).
 		/// \param dictionary Reference to the object dictionary.
+		/// \param name_to_address Reference to name-address mapping.
 		/// \param cob_id_ COB-ID of the PDO
 		/// \param transmission_type_ Transmission type
 		/// \param repeat_time_ Send repeat time , in case transmission_type_==TransmissionType::PERIODIC
 		/// \param mappings_ Mapped entries with offset (see Mapping class)
 		/// \throws dictionary_error if entry does not exist or mappings overlap (among others)
-		TransmitPDOMapping(Core& core, const std::map<std::string, Entry>& dictionary, uint16_t cob_id_,
+		TransmitPDOMapping(Core& core, const std::unordered_map<Address, Entry>& dictionary, const std::unordered_map<std::string, Address>& name_to_address, uint16_t cob_id_,
 			TransmissionType transmission_type_, std::chrono::milliseconds repeat_time_, const std::vector<Mapping>& mappings_);
 
 		/// Copy constructor deleted.
@@ -101,7 +103,12 @@ namespace kaco {
 		static const bool debug = false;
 
 		Core& m_core;
-		const std::map<std::string, Entry>& m_dictionary;
+
+		/// Reference to the dictionary
+		const std::unordered_map<Address, Entry>& m_dictionary;
+
+		/// Reference to the address-name mapping
+		const std::unordered_map<std::string, Address>& m_name_to_address;
 
 	};
 

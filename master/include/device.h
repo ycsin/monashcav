@@ -41,7 +41,7 @@
 #include "eds_reader.h"
 
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <chrono>
 #include <functional>
@@ -269,9 +269,11 @@ namespace kaco {
 		Core& m_core;
 		uint8_t m_node_id;
 
-		std::map<std::string, Entry> m_dictionary;
-		std::map<std::string, Operation> m_operations;
-		std::map<std::string, Value> m_constants;
+		std::unordered_map<Address, Entry> m_dictionary;
+		std::unordered_map<std::string, Address> m_name_to_address;
+
+		std::unordered_map<std::string, Operation> m_operations;
+		std::unordered_map<std::string, Value> m_constants;
 		std::forward_list<ReceivePDOMapping> m_receive_pdo_mappings;
 		std::mutex m_receive_pdo_mappings_mutex;
 		std::forward_list<TransmitPDOMapping> m_transmit_pdo_mappings;

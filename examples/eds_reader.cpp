@@ -43,8 +43,9 @@ int main(int argc, char** argv) {
 
 	PRINT("This example reads an EDS file and prints the resulting dictionary.");
 
-	std::map<std::string, kaco::Entry> map;
-	kaco::EDSReader reader(map);
+	std::unordered_map<kaco::Address, kaco::Entry> dictionary;
+	std::unordered_map<std::string, kaco::Address> name_to_address;
+	kaco::EDSReader reader(dictionary, name_to_address);
 
 	bool success = false;
 	std::string path;
@@ -87,7 +88,7 @@ int main(int argc, char** argv) {
 	using EntryRef = std::reference_wrapper<const kaco::Entry>;
 	std::vector<EntryRef> entries;
 
-	for (const auto& pair : map) {
+	for (const auto& pair : dictionary) {
 		entries.push_back(std::ref(pair.second));
 	}
 

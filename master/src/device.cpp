@@ -46,7 +46,7 @@
 namespace kaco {
 
 Device::Device(Core& core, uint8_t node_id)
-	: m_core(core), m_node_id(node_id), m_eds_library(m_dictionary) { }
+	: m_core(core), m_node_id(node_id), m_eds_library(m_dictionary, m_name_to_address) { }
 
 Device::~Device() 
 	{ }
@@ -79,7 +79,7 @@ uint8_t Device::get_node_id() const {
 bool Device::has_entry(const std::string& entry_name) {
 
 	const std::string name = Utils::escape(entry_name);
-	return m_dictionary.count(name) != 0;
+	return m_name_to_address.count(name) != 0; // TODO DEBUG( && m_dictionary[m_name_to_address[name]].count() != 0 );
 
 }
 
@@ -113,7 +113,7 @@ const Value& Device::get_entry(const std::string& entry_name, uint8_t array_inde
 		throw dictionary_error(dictionary_error::type::unknown_entry, name);
 	}
 
-	Entry& entry = m_dictionary[name];
+	Entry& entry = m_dictionary[m_name_to_address[name]];
 
 	if (array_index > 0 && !entry.is_array) {
 		throw dictionary_error(dictionary_error::type::no_array, name);
@@ -140,7 +140,7 @@ Type Device::get_entry_type(const std::string& entry_name) {
 		throw dictionary_error(dictionary_error::type::unknown_entry, name);
 	}
 
-	return m_dictionary[name].get_type();
+	return m_dictionary[m_name_to_address[name]].get_type();
 
 }
 
@@ -175,7 +175,7 @@ void Device::set_entry(const std::string& entry_name, const Value& value, uint8_
 		throw dictionary_error(dictionary_error::type::unknown_entry, name);
 	}
 
-	Entry& entry = m_dictionary[name];
+	Entry& entry = m_dictionary[m_name_to_address[name]];
 
 	if (array_index > 0 && !entry.is_array) {
 		throw dictionary_error(dictionary_error::type::no_array, name);
@@ -209,7 +209,7 @@ void Device::add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_n
 		throw dictionary_error(dictionary_error::type::unknown_entry, name);
 	}
 
-	Entry& entry = m_dictionary[name];
+	Entry& entry = m_dictionary[m_name_to_address[name]];
 
 	if (array_index > 0 && !entry.is_array) {
 		throw dictionary_error(dictionary_error::type::no_array, name);
@@ -247,7 +247,7 @@ void Device::add_transmit_pdo_mapping(uint16_t cob_id, const std::vector<Mapping
 	{
 		std::lock_guard<std::mutex> lock(m_transmit_pdo_mappings_mutex); // unlocks in case of exception
 		// Contructor can throw dictionary_error. Letting user handle this.
-		m_transmit_pdo_mappings.emplace_front(m_core, m_dictionary, cob_id, transmission_type, repeat_time, mappings);
+		m_transmit_pdo_mappings.emplace_front(m_core, m_dictionary, m_name_to_address, cob_id, transmission_type, repeat_time, mappings);
 		pdo_temp = &m_transmit_pdo_mappings.front();
 	}
 	
@@ -260,7 +260,7 @@ void Device::add_transmit_pdo_mapping(uint16_t cob_id, const std::vector<Mapping
 			const std::string entry_name = Utils::escape(mapping.entry_name);
 
 			// entry exists because check_correctness() == true.
-			Entry& entry = m_dictionary.at(entry_name);
+			Entry& entry = m_dictionary.at(m_name_to_address.at(entry_name));
 
 			entry.add_value_changed_callback([entry_name, &pdo](const Value& value){
 				DEBUG_LOG("[Callback] Value of "<<entry_name<<" changed to "<<value);
@@ -295,7 +295,7 @@ void Device::pdo_received_callback(const ReceivePDOMapping& mapping, std::vector
 	DEBUG_LOG("[Device::pdo_received_callback] Received a PDO for mapping '"<<mapping.entry_name<<"'!");
 
 	const std::string entry_name = Utils::escape(mapping.entry_name);
-	Entry& entry = m_dictionary[entry_name];
+	Entry& entry = m_dictionary[m_name_to_address[entry_name]];
 	const uint8_t array_index = mapping.array_index;
 	const uint8_t offset = mapping.offset;
 	const uint8_t type_size = Utils::get_type_size(entry.type);
@@ -363,7 +363,8 @@ bool Device::load_dictionary_from_eds(std::string path) {
 	if (m_eds_library.ready()) {
 
 		m_dictionary.clear();
-		EDSReader reader(m_dictionary);
+		m_name_to_address.clear();
+		EDSReader reader(m_dictionary, m_name_to_address);
 		bool success = reader.load_file(path);
 
 		if (!success) {
@@ -461,10 +462,10 @@ void Device::print_dictionary() const {
 void Device::read_complete_dictionary() {
 	for (auto& pair : m_dictionary) {
 		try {
-			get_entry(pair.first);
+			get_entry(pair.second.name);
 		} catch (const sdo_error& error) {
 			pair.second.disabled = true;
-			DEBUG_LOG("[Device::read_complete_dictionary] SDO error for field "<<pair.first<<": "<<error.what()<<" -> disable entry.");
+			DEBUG_LOG("[Device::read_complete_dictionary] SDO error for field "<<pair.second.name<<": "<<error.what()<<" -> disable entry.");
 		}
 	}
 }

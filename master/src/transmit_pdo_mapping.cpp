@@ -39,14 +39,15 @@
 
 namespace kaco {
 
-TransmitPDOMapping::TransmitPDOMapping(Core& core, const std::map<std::string, Entry>& dictionary, uint16_t cob_id_,
-			TransmissionType transmission_type_, std::chrono::milliseconds repeat_time_, const std::vector<Mapping>& mappings_)
+TransmitPDOMapping::TransmitPDOMapping(Core& core, const std::unordered_map<Address, Entry>& dictionary, const std::unordered_map<std::string, Address>& name_to_address,
+			uint16_t cob_id_, TransmissionType transmission_type_, std::chrono::milliseconds repeat_time_, const std::vector<Mapping>& mappings_)
 	: cob_id(cob_id_),
 		transmission_type(transmission_type_),
 		repeat_time(repeat_time_),
 		mappings(mappings_),
 		m_core(core),
-		m_dictionary(dictionary)
+		m_dictionary(dictionary),
+		m_name_to_address(name_to_address)
 	{
 		check_correctness();
 	}
@@ -68,7 +69,7 @@ void TransmitPDOMapping::send() const {
 	for (const Mapping& mapping : mappings) {
 
 		const std::string entry_name = Utils::escape(mapping.entry_name);
-		const Entry& entry = m_dictionary.at(entry_name);
+		const Entry& entry = m_dictionary.at(m_name_to_address.at(entry_name));
 		const Value& value = entry.get_value(mapping.array_index);
 		const std::vector<uint8_t> bytes = value.get_bytes();
 		assert(mapping.offset+bytes.size() <= 8);
@@ -101,11 +102,11 @@ void TransmitPDOMapping::check_correctness() const {
 		
 		const std::string entry_name = Utils::escape(mapping.entry_name);
 
-		if (m_dictionary.count(entry_name) == 0) {
+		if (m_name_to_address.count(entry_name) == 0) {
 			throw dictionary_error(dictionary_error::type::unknown_entry, entry_name);
 		}
 
-		const Entry& entry = m_dictionary.at(entry_name);
+		const Entry& entry = m_dictionary.at(m_name_to_address.at(entry_name));
 		const uint8_t type_size = Utils::get_type_size(entry.type);
 
 		if (mapping.offset+type_size > 8) {

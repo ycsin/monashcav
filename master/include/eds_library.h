@@ -31,9 +31,10 @@
  
 #pragma once
 
-#include <map>
+#include <unordered_map>
 
 #include "entry.h"
+#include "address.h"
 
 namespace kaco {
 
@@ -47,8 +48,9 @@ namespace kaco {
 	public:
 
 		/// Constructor.
-		/// \param target The dictionary, into which entries will be inserted.
-		EDSLibrary(std::map<std::string, Entry>& target);
+		/// \param dictionary The dictionary, into which entries will be inserted.
+		/// \param name_to_address Mapping from name to address in dictionary (to be created).
+		EDSLibrary(std::unordered_map<Address, Entry>& dictionary, std::unordered_map<std::string, Address>& name_to_address);
 
 		/// Finds EDS library on disk.
 		/// \param path optional custom path to EDS library
@@ -85,8 +87,11 @@ namespace kaco {
 		/// Enable debug logging.
 		static const bool debug = false;
 
-		/// reference to the dictionary
-		std::map<std::string, Entry>& m_map;
+		/// Reference to the dictionary
+		std::unordered_map<Address, Entry>& m_dictionary;
+
+		/// Reference to the address-name mapping
+		std::unordered_map<std::string, Address>& m_name_to_address;
 
 		/// Path to the EDS library in filesystem. Set by lookup_library()
 		std::string m_library_path;

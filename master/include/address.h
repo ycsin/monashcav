@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Thomas Keh
+ * Copyright (c) 2016, Thomas Keh
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,65 +28,48 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+#pragma once
 
-#include "logger.h"
-#include "eds_library.h"
+#include <cstdint>
+#include <functional>
 
-#include <algorithm>
-#include <unordered_map>
 
-void print_dictionary(const std::unordered_map<kaco::Address, kaco::Entry>& map) {
+namespace kaco {
 
-	PRINT("\nHere is the dictionary:");
+	/// Tuple of object dictionary index and subindex
+	struct Address {
 
-	using EntryRef = std::reference_wrapper<const kaco::Entry>;
-	std::vector<EntryRef> entries;
+		/// Index
+		uint16_t index;
 
-	for (const auto& pair : map) {
-		entries.push_back(std::ref(pair.second));
-	}
+		/// Sub-index
+		uint8_t subindex;
 
-	// sort by index and subindex
-	std::sort(entries.begin(), entries.end(),
-		[](const EntryRef& l, const EntryRef& r) { return l.get()<r.get(); });
+		/// Equality operator for use of Address as key type in std::unordered_map.
+		bool operator==(const Address &other) const {
+			return (index == other.index && subindex == other.subindex);
+		}
 
-	for (const auto& entry : entries) {
-		entry.get().print();
-	}
+	};
 
-}
+} // end namespace kaco
 
-int main() {
+// We put this into the header file because specialization must be parsed before any occurrence of std::unordered_map<Address,...>.
+namespace std {
 
-	PRINT("This example loads dictionaries from the EDS library.");
+	// Specializing std::hash for kaco::Address for use as key type in std::unordered_map.
+	template<> struct hash<kaco::Address> {
 
-	std::unordered_map<kaco::Address, kaco::Entry> dictionary;
-	std::unordered_map<std::string, kaco::Address> name_to_address;
-	kaco::EDSLibrary library(dictionary, name_to_address);
-	bool success = library.lookup_library();
+		typedef kaco::Address argument_type;
+		typedef std::size_t result_type;
 
-	if (!success) {
-		ERROR("EDS library not found.");
-		return EXIT_FAILURE;
-	}
+		result_type operator()(argument_type const& s) const {
+			const uint32_t a = static_cast<uint32_t>(s.index);
+			const uint32_t b = static_cast<uint32_t>(s.subindex);
+			return std::hash<uint32_t>()((a<<8)&b);
+		}
 
-	success = library.load_default_eds(402);
-	if (!success) {
-		ERROR("load_default_eds(402) failed.");
-	} else {
-		print_dictionary(dictionary);
-	}
+	};
 
-	// This should fail.
-	dictionary.clear();
-	name_to_address.clear();
-	success = library.load_default_eds(405);
-	if (!success) {
-		ERROR("load_default_eds(405) failed.");
-	} else {
-		print_dictionary(dictionary);
-	}
-
-	return EXIT_SUCCESS;
-
-}
+} // end namespace std

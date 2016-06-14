@@ -53,8 +53,8 @@ namespace kaco {
 
 	namespace fs = boost::filesystem;
 
-	EDSLibrary::EDSLibrary(std::map<std::string, Entry>& target)
-		: m_map(target), m_ready(false)
+	EDSLibrary::EDSLibrary(std::unordered_map<Address, Entry>& dictionary, std::unordered_map<std::string, Address>& name_to_address)
+		: m_dictionary(dictionary), m_name_to_address(name_to_address), m_ready(false)
 		{ }
 
 	bool EDSLibrary::lookup_library(std::string path) {
@@ -106,8 +106,9 @@ namespace kaco {
 			return false;
 		}
 
-		m_map.clear();
-		EDSReader reader(m_map);
+		m_dictionary.clear();
+		m_name_to_address.clear();
+		EDSReader reader(m_dictionary, m_name_to_address);
 		bool success = reader.load_file(path);
 
 		if (!success) {
@@ -187,8 +188,9 @@ namespace kaco {
 				const std::string path = m_library_path + "/"+filename;
 				assert(fs::exists(path));
 				
-				m_map.clear();
-				EDSReader reader(m_map);
+				m_dictionary.clear();
+				m_name_to_address.clear();
+				EDSReader reader(m_dictionary, m_name_to_address);
 				bool success = reader.load_file(path);
 
 				if (!success) {
@@ -232,8 +234,9 @@ namespace kaco {
 		
 		DEBUG_LOG("[EDSLibrary::load_manufacturer_eds] Found manufacturer EDS: "<<path);
 
-		m_map.clear();
-		EDSReader reader(m_map);
+		m_dictionary.clear();
+		m_name_to_address.clear();
+		EDSReader reader(m_dictionary, m_name_to_address);
 		bool success = reader.load_file(path);
 
 		if (!success) {
