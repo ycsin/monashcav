@@ -173,8 +173,11 @@ std::string Utils::escape(std::string str) {
 unsigned long long Utils::hexstr_to_uint(std::string str) {
 	try {
 		return std::stoull(str, nullptr, 16);
-	} catch ( const std::exception& e ) {
-		ERROR(e.what());
+	} catch ( const std::invalid_argument& e ) {
+		ERROR("[Utils::hexstr_to_uint] Invalid argument: \""<<str<<"\" ("<<e.what()<<")");
+		return 0;
+	} catch ( const std::out_of_range& e ) {
+		ERROR("[Utils::hexstr_to_uint] Out of range: \""<<str<<"\" ("<<e.what()<<")");
 		return 0;
 	}
 }
@@ -182,8 +185,11 @@ unsigned long long Utils::hexstr_to_uint(std::string str) {
 unsigned long long Utils::decstr_to_uint(std::string str) {
 	try {
 		return std::stoull(str, nullptr, 10);
-	} catch ( const std::exception& e ) {
-		ERROR(e.what());
+	} catch ( const std::invalid_argument& e ) {
+		ERROR("[Utils::decstr_to_uint] Invalid argument: \""<<str<<"\" ("<<e.what()<<")");
+		return 0;
+	} catch ( const std::out_of_range& e ) {
+		ERROR("[Utils::decstr_to_uint] Out of range: \""<<str<<"\" ("<<e.what()<<")");
 		return 0;
 	}
 }
