@@ -78,10 +78,7 @@ int main(int argc, char* argv[]) {
 		kaco::Device& device = master.get_device(i);
 		device.start();
 
-		if (!device.load_dictionary_from_library()) {
-			ERROR("No suitable EDS file found for this device.");
-			return EXIT_FAILURE;
-		}
+		device.load_dictionary_from_library();
 
 		const auto profile = device.get_device_profile_number();
 		PRINT("Found CiA "<<std::dec<<(unsigned)profile<<" device with node ID "<<device.get_node_id()<<": "<<device.get_entry("manufacturer_device_name"));

@@ -33,6 +33,7 @@
 #include "eds_reader.h"
 #include "entry.h"
 #include "utils.h"
+#include "global_config.h"
 
 #include <regex>
 #include <string>
@@ -160,6 +161,10 @@ bool EDSReader::parse_var(const std::string& section, uint16_t index, uint8_t su
 	entry.index = index;
 	entry.subindex = subindex;
 
+	if (Config::eds_reader_mark_entries_as_generic) {
+		entry.is_generic = true;
+	}
+
 	if (entry.type == Type::invalid) {
 		ERROR("[EDSReader::parse_var] "<<entry.name<<": Ignoring entry due to unsupported data type.");
 		return true;
@@ -168,38 +173,98 @@ bool EDSReader::parse_var(const std::string& section, uint16_t index, uint8_t su
 
 	entry.access_type = Utils::string_to_access_type(str_access_type);
 
+	const Address address = Address{entry.index,entry.subindex};
+
 	// --- insert entry --- //
 
-	while (m_name_to_address.count(var_name)>0) {
+	if (!Config::eds_reader_just_add_mappings) {
 
-		WARN("[EDSReader::parse_var] Entry "<<var_name<<" already exists. Adding or increasing counter.");
+		// Resolve name conflics...
 
-		try {
-			std::smatch matches;
-			if (std::regex_match(var_name, matches, std::regex("^(.+)_([[:xdigit:]]{1,3})$"))) {
-				assert(matches.size()>2);
-				uint8_t count = Utils::decstr_to_uint(matches[2]);
-				++count;
-				var_name = std::string(matches[1])+"_"+std::to_string(count);
-			} else {
-				var_name = var_name+"_1";
+		while (m_name_to_address.count(var_name)>0) {
+
+			WARN("[EDSReader::parse_var] Entry "<<var_name<<" already exists. Adding or increasing counter.");
+
+			try {
+				std::smatch matches;
+				if (std::regex_match(var_name, matches, std::regex("^(.+)_([[:xdigit:]]{1,3})$"))) {
+					assert(matches.size()>2);
+					uint8_t count = Utils::decstr_to_uint(matches[2]);
+					++count;
+					var_name = std::string(matches[1])+"_"+std::to_string(count);
+				} else {
+					var_name = var_name+"_1";
+				}
+			} catch (std::regex_error& e) {
+				WARN("[EDSReader::parse_var] "<<parse_regex_error(e.code(), var_name));
+				return false;
 			}
-		} catch (std::regex_error& e) {
-			WARN("[EDSReader::parse_var] "<<parse_regex_error(e.code(), var_name));
-			return false;
+
+			DEBUG_LOG("[EDSReader::parse_var] New entry name: "<<var_name);
+			entry.name = var_name;
+
 		}
 
-		DEBUG_LOG("[EDSReader::parse_var] New entry name: "<<var_name);
-		entry.name = var_name;
+		DEBUG_LOG("[EDSReader::parse_var] Inserting entry "<<var_name<<".");
 
+		// The following line isn't possible because STL would require copy constructor:
+		// m_dictionary[Address{entry.index,entry.subindex}] = std::move(entry);
+
+		m_dictionary.insert(std::make_pair(address, std::move(entry)));
+		m_name_to_address.insert(std::make_pair(var_name,address));
+
+	} else {
+
+		// Entering this path means that a generic EDS file is loaded on top of
+		// a manufacturer-specific dictionary. Only additional generic
+		// entry names shall be added.
+
+		if (m_dictionary.count(address)>0) {
+			// entry exists.
+			if (m_dictionary[address].name != var_name) {
+				DEBUG_LOG("[EDSReader::parse_var] Manufacturer-specific entry name \""<<m_dictionary[address].name<<"\" differs from CiA standard \""<<var_name<<"\".");
+				if (m_name_to_address.count(var_name)>0) {
+					WARN("[EDSReader::parse_var] Conflict with existing mapping \""<<var_name<<"\"->0x"
+						<<std::hex<<m_name_to_address[var_name].index<<"sub"<<std::dec<<m_name_to_address[var_name].subindex<<".");
+					DUMP_HEX(index);
+					DUMP_HEX(subindex);
+				} else {
+					m_name_to_address.insert(std::make_pair(var_name,address));
+					DEBUG_LOG("[EDSReader::parse_var] Added additional name-to-address mapping.");
+				}
+			} else {
+				DEBUG_LOG_EXHAUSTIVE("[EDSReader::parse_var] Standard conformal entry: "<<var_name);
+			}
+		} else {
+			DEBUG_LOG_EXHAUSTIVE("[EDSReader::parse_var] Standard entry not available in manufacturer-specific EDS: "<<var_name);
+		}
 	}
 
-	DEBUG_LOG("[EDSReader::parse_var] Inserting entry "<<var_name<<".");
-	
-	// This isn't possible because STL would require copy constructor:
-	// m_dictionary[Address{entry.index,entry.subindex}] = std::move(entry);
-	m_dictionary.insert(std::make_pair(Address{entry.index,entry.subindex}, std::move(entry)));
-	m_name_to_address.insert(std::make_pair(var_name,Address{entry.index,entry.subindex}));
+	// new method:
+	/*const Address address = Address{entry.index,entry.subindex}:
+	if (m_dictionary.count(address)>0) {
+		// replace entry
+		// TODO: keep generic name?
+
+		std::string existing_name = m_dictionary[address].name;
+		if (existing_name != var_name) {
+			// insert additional name
+			if (m_name_to_address.count(var_name)>0) {
+				const Entry& conflicting_entry = m_dictionary.at(m_name_to_address[var_name]);
+				WARNING("Conflict! Entry name \""<<var_name<<"\" already exists for Entry 0x"<<std::hex<<conflicting_entry.index<<"sub"
+					<<std::dec<<conflicting_entry.subindex<<". Erasing old mapping...");
+				m_name_to_address.erase(var_name);
+			}
+		}
+		
+		DEBUG_LOG("[EDSReader::parse_var] Entry already exists "<<var_name<<".");
+
+		// C++17: insert_or_assign...
+		m_dictionary.erase(address);
+	}
+
+	m_dictionary.insert(std::make_pair(address, std::move(entry)));
+	m_name_to_address.insert(std::make_pair(var_name,address));*/
 
 	return true;
 

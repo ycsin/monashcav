@@ -46,6 +46,18 @@ namespace kaco {
 		/// Number of repetitions when an SDO timeout occurs in SDO download/upload
 		static size_t repeats_on_sdo_timeout;
 
+		/// If this is set to true, EDSReader will mark all entries as generic (Entry::is_generic)
+		/// This is used internally. Do not modify this unless you know what you do!
+		static bool eds_reader_mark_entries_as_generic;
+		
+		/// If this is set to true, EDSReader won't create any entries, but just adds
+		/// name-to-address mappings for the (generic) entry names.
+		static bool eds_reader_just_add_mappings;
+		
+		/// If this is set to true, EDSLibrary will clear dictionary and me-to-address mappings
+		/// before loading an EDS file.
+		static bool eds_library_clear_dictionary;
+
 	};
 
 } // end namespace kaco

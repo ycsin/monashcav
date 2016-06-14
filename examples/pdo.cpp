@@ -77,11 +77,7 @@ int main() {
 	const auto node_id = device.get_node_id();
 	// device.start(); // already started
 
-	success = device.load_dictionary_from_library();
-	if (!success) {
-		ERROR("Specializing device failed.");
-		return EXIT_FAILURE;
-	}
+	device.load_dictionary_from_library();
 
 	DUMP(device.get_entry("Manufacturer device name"));
 

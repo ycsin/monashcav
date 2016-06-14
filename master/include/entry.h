@@ -162,6 +162,11 @@ namespace kaco {
 		// TODO: Add fields for default, max and min value, pdo mapping boolean, object flags, and object type.
 		// TODO: Maybe the array functionality is obsolete when using EDS files...
 
+		/// This is set to true, if the entry has been created through a default CiA EDS file.
+		/// This means that it's not guaranteed that the entry actually exists in the current device.
+		/// For manually added entries and entries from manufacturer-specific EDS files, this is set to false.
+		bool is_generic;
+
 	private:
 
 		std::vector<Value> m_value;

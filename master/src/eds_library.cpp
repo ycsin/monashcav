@@ -36,6 +36,7 @@
 #include "canopen_error.h"
 #include "types.h"
 #include "value.h"
+#include "global_config.h"
 
 #include <vector>
 #include <string>
@@ -106,8 +107,11 @@ namespace kaco {
 			return false;
 		}
 
-		m_dictionary.clear();
-		m_name_to_address.clear();
+		
+		if (Config::eds_library_clear_dictionary) {
+			reset_dictionary();
+		}
+
 		EDSReader reader(m_dictionary, m_name_to_address);
 		bool success = reader.load_file(path);
 
@@ -118,6 +122,7 @@ namespace kaco {
 
 		DEBUG_LOG("[EDSLibrary::load_default_eds] Found EDS file: "<<path);
 		success = reader.import_entries();
+		most_recent_eds_file = path;
 
 		if (!success) {
 			ERROR("[EDSLibrary::load_default_eds] Importing entries failed.");
@@ -188,8 +193,10 @@ namespace kaco {
 				const std::string path = m_library_path + "/"+filename;
 				assert(fs::exists(path));
 				
-				m_dictionary.clear();
-				m_name_to_address.clear();
+				if (Config::eds_library_clear_dictionary) {
+					reset_dictionary();
+				}
+
 				EDSReader reader(m_dictionary, m_name_to_address);
 				bool success = reader.load_file(path);
 
@@ -199,6 +206,7 @@ namespace kaco {
 				}
 
 				success = reader.import_entries();
+				most_recent_eds_file = path;
 
 				if (!success) {
 					ERROR("[EDSLibrary::load_manufacturer_eds] Importing entries failed.");
@@ -234,10 +242,13 @@ namespace kaco {
 		
 		DEBUG_LOG("[EDSLibrary::load_manufacturer_eds] Found manufacturer EDS: "<<path);
 
-		m_dictionary.clear();
-		m_name_to_address.clear();
+		if (Config::eds_library_clear_dictionary) {
+			reset_dictionary();
+		}
+
 		EDSReader reader(m_dictionary, m_name_to_address);
 		bool success = reader.load_file(path);
+		most_recent_eds_file = path;
 
 		if (!success) {
 			ERROR("[EDSLibrary::load_manufacturer_eds] Loading file not successful.");
@@ -257,6 +268,15 @@ namespace kaco {
 
 	bool EDSLibrary::ready() const {
 		return m_ready;
+	}
+	
+	void EDSLibrary::reset_dictionary() {
+		m_dictionary.clear();
+		m_name_to_address.clear();
+	}
+	
+	std::string EDSLibrary::get_most_recent_eds_file_path() const {
+		return most_recent_eds_file;
 	}
 
 } // end namespace kaco

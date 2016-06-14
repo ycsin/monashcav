@@ -64,12 +64,7 @@ int main() {
 		device.start();
 
 		PRINT("Loading EDS from library...")
-		success = device.load_dictionary_from_library();
-		if (!success) {
-			ERROR("Specializing device failed.");
-			return EXIT_FAILURE;
-		}
-
+		device.load_dictionary_from_library();
 		PRINT("Dictionary:");
 		device.read_complete_dictionary();
 		device.print_dictionary();

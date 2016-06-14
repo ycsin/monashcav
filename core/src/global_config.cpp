@@ -40,4 +40,10 @@ namespace kaco {
 		
 	size_t Config::repeats_on_sdo_timeout = 0;
 
+	bool Config::eds_reader_mark_entries_as_generic = false;
+	
+	bool Config::eds_reader_just_add_mappings = false;
+
+	bool Config::eds_library_clear_dictionary = false;
+
 } // end namespace kaco

@@ -53,6 +53,7 @@ Entry::Entry(Entry::VariableTag, uint16_t _index, uint8_t _subindex, std::string
 		type(_type),
 		access_type(_access_type),
 		disabled(false),
+		is_generic(false),
 		m_value_changed_callbacks_mutex(new std::mutex),
 		m_read_write_mutex(new std::recursive_mutex)
 	{ }
@@ -66,6 +67,7 @@ Entry::Entry(Entry::ArrayTag, uint16_t _index, std::string _name, Type _type, Ac
 		access_type(_access_type),
 		is_array(true),
 		disabled(false),
+		is_generic(false),
 		m_value_changed_callbacks_mutex(new std::mutex),
 		m_read_write_mutex(new std::recursive_mutex)
 	{ }

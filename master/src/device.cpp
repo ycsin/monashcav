@@ -58,11 +58,11 @@ bool Device::start() {
 	bool success = m_eds_library.lookup_library();
 
 	if (!success) {
-		ERROR("[Device constructor] EDS library not found. Please fix or manage dictionary by yourself.");
+		ERROR("[Device::start] EDS library not found. Please fix or manage dictionary by yourself.");
 	} else {
 		success = m_eds_library.load_mandatory_entries();
 		if (!success) {
-			ERROR("[Device constructor] Could not load mandatory dictionary entries. Please fix or manage dictionary by yourself.");
+			ERROR("[Device::start] Could not load mandatory dictionary entries. Please fix or manage dictionary by yourself.");
 		}
 	}
 
@@ -319,42 +319,52 @@ uint16_t Device::get_device_profile_number() {
 	return (device_type & 0xFFFF);
 }
 
-bool Device::load_dictionary_from_library() {
+void Device::load_dictionary_from_library() {
 
 	if (m_eds_library.ready()) {
 
 		uint16_t profile = get_device_profile_number();
-		uint32_t vendor_id = get_entry("Identity object/Vendor-ID");
-		uint32_t product_code = get_entry("Identity object/Product Code");
-		uint32_t revision_number = get_entry("Identity object/Revision number");
 
-		//bool success = m_eds_library.load_manufacturer_eds_deprecated(vendor_id, product_code, revision_number);
+		DEBUG_LOG("Device::load_dictionary_from_library()...");
 
+		// First, we try to load manufacturer specific entries.
+
+		Config::eds_library_clear_dictionary = true;
 		bool success = m_eds_library.load_manufacturer_eds(*this);
+		Config::eds_library_clear_dictionary = false;
+		
+		if (success) {
+			DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded manufacturer-specific dictionary: " << m_eds_library.get_most_recent_eds_file_path());
+			DEBUG_LOG("[Device::load_dictionary_from_library] Now we will add additional mappings from standard conformal entry names to the entries...");
+			Config::eds_reader_just_add_mappings = true;
+		} else {
+			DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": There is no manufacturer-specific EDS file available. Going on with the default dictionary...");
+			Config::eds_reader_just_add_mappings = false;
+		}
+
+		// Load entries like they are defined in the CiA CANopen standard documents...
+
+		Config::eds_reader_mark_entries_as_generic = true;
+		Config::eds_library_clear_dictionary = false;
+		success = m_eds_library.load_default_eds(profile);
 
 		if (success) {
-			DEBUG_LOG("[load_dictionary_from_library] Successfully loaded device specific dictionary: "<<std::dec<<vendor_id<<"/"<<product_code<<"."<<revision_number);
+			DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded profile-specific dictionary: " << m_eds_library.get_most_recent_eds_file_path());
 		} else {
-			success = m_eds_library.load_default_eds(profile);
+			Config::eds_library_clear_dictionary = false;
+			success = m_eds_library.load_mandatory_entries();
 			if (success) {
-				DEBUG_LOG("[load_dictionary_from_library] Successfully loaded generic CiA profile dictionary: cia/"<<std::dec<<profile<<".eds");
+				DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded mandatory entries: " << m_eds_library.get_most_recent_eds_file_path());
 			} else {
-				success = m_eds_library.load_mandatory_entries();
-				if (success) {
-					DEBUG_LOG("[load_dictionary_from_library] Successfully loaded mandatory CiA 301 entries");
-				} else {
-					ERROR("[load_dictionary_from_library] Could not automatically load the dictionary. Please manage dictionary by yourself.");
-					return false;
-				}
+				throw canopen_error("Could not load mandatory CiA 301 dictionary entries for device with ID "+std::to_string(m_node_id)+". This can break various parts of KaCanOpen!");
 			}
 		}
 
-	} else {
-		ERROR("[Device::load_dictionary_from_library] EDS library not ready. Please manage dictionary by yourself.");
-		return false;
-	}
+		Config::eds_reader_mark_entries_as_generic = false;
 
-	return true;
+	} else {
+		throw canopen_error("[Device::load_dictionary_from_library] EDS library is not available.");
+	}
 
 }
 
@@ -362,8 +372,10 @@ bool Device::load_dictionary_from_eds(std::string path) {
 
 	if (m_eds_library.ready()) {
 
-		m_dictionary.clear();
-		m_name_to_address.clear();
+		m_eds_library.reset_dictionary();
+		Config::eds_reader_just_add_mappings = false;
+		Config::eds_reader_mark_entries_as_generic = false;
+
 		EDSReader reader(m_dictionary, m_name_to_address);
 		bool success = reader.load_file(path);
 
