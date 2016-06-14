@@ -46,12 +46,16 @@ std::string Utils::type_to_string(Type type) {
 			return "uint16";
 		case Type::uint32:
 			return "uint32";
+		case Type::uint64:
+			return "uint64";
 		case Type::int8:
 			return "int8";
 		case Type::int16:
 			return "int16";
 		case Type::int32:
 			return "int32";
+		case Type::int64:
+			return "int64";
 		case Type::real32:
 			return "real32";
 		case Type::real64:
@@ -60,6 +64,8 @@ std::string Utils::type_to_string(Type type) {
 			return "boolean";
 		case Type::string:
 			return "string";
+		case Type::octet_string:
+			return "octet_string";
 		default:
 			return "unknown type";
 	}
@@ -115,9 +121,12 @@ uint8_t Utils::get_type_size(Type type) {
 		case Type::int32:
 		case Type::real32:
 			return 4;
+		case Type::uint64:
+		case Type::int64:
 		case Type::real64:
 			return 8;
 		case Type::string:
+		case Type::octet_string:
 		default:
 			ERROR("[Utils::get_type_size] Unknown type or type with variable size.");
 			return 0;
@@ -135,7 +144,7 @@ Type Utils::type_code_to_type(uint16_t code) {
 		case (uint16_t) DataType::UNSIGNED32: return Type::uint32;
 		case (uint16_t) DataType::REAL32: return Type::real32;
 		case (uint16_t) DataType::VISIBLE_STRING: return Type::string;
-		//case OCTET_STRING: return Type::;
+		case (uint16_t) DataType::OCTET_STRING: return Type::octet_string;
 		//case UNICODE_STRING: return Type::;
 		//case TIME_OF_DAY: return Type::;
 		//case TIME_DIFFERENCE: return Type::;
@@ -143,6 +152,10 @@ Type Utils::type_code_to_type(uint16_t code) {
 		//case INTEGER24: return Type::;
 		case (uint16_t) DataType::REAL64: return Type::real64;
 		//case INTEGER40: return Type::;
+		//...
+		case (uint16_t) DataType::INTEGER64: return Type::int64;
+		case (uint16_t) DataType::UNSIGNED64: return Type::uint64;
+		//...
 		default:
 			ERROR("[Utils::type_code_to_type] Data type "<<data_type_to_string(static_cast<DataType>(code))<<" not yet supported.");
 			return Type::invalid;
@@ -185,7 +198,7 @@ AccessType Utils::string_to_access_type(std::string str) {
 	} else if (str == "rw" || str == "rwr" || str == "rww") {
 		return AccessType::read_write;
 	} else {
-		ERROR("[Utils::str_to_access_type] Invalid access type string. Returning AccessType::read_write.")
+		ERROR("[Utils::str_to_access_type] Invalid access type string \""<<str<<"\". Returning AccessType::read_write.")
 		return AccessType::read_write;
 	}
 }

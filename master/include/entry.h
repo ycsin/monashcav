@@ -150,6 +150,10 @@ namespace kaco {
 		/// Used by Device::set_entry().
 		WriteAccessMethod write_access_method = WriteAccessMethod::sdo;
 		
+		/// Disables this entry.
+		/// This is used when a device reports "Object does not exist in the object dictionary".
+		bool disabled;
+
 		// maybe supported in future:
 		//bool is_slice;
 		//uint8_t slice_first_bit;

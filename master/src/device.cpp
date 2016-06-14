@@ -328,7 +328,9 @@ bool Device::load_dictionary_from_library() {
 		uint32_t product_code = get_entry("Identity object/Product Code");
 		uint32_t revision_number = get_entry("Identity object/Revision number");
 
-		bool success = m_eds_library.load_manufacturer_eds(vendor_id, product_code, revision_number);
+		//bool success = m_eds_library.load_manufacturer_eds_deprecated(vendor_id, product_code, revision_number);
+
+		bool success = m_eds_library.load_manufacturer_eds(*this);
 
 		if (success) {
 			DEBUG_LOG("[load_dictionary_from_library] Successfully loaded device specific dictionary: "<<std::dec<<vendor_id<<"/"<<product_code<<"."<<revision_number);
@@ -441,7 +443,9 @@ void Device::print_dictionary() const {
 	std::vector<EntryRef> entries;
 
 	for (const auto& pair : m_dictionary) {
-		entries.push_back(std::ref(pair.second));
+		if (!pair.second.disabled) {
+			entries.push_back(std::ref(pair.second));
+		}
 	}
 
 	// sort by index and subindex
@@ -455,11 +459,12 @@ void Device::print_dictionary() const {
 }
 
 void Device::read_complete_dictionary() {
-	for (const auto& pair : m_dictionary) {
+	for (auto& pair : m_dictionary) {
 		try {
 			get_entry(pair.first);
 		} catch (const sdo_error& error) {
-			WARN("[Device::read_complete_dictionary] SDO error for field "<<pair.first<<": "<<error.what());
+			pair.second.disabled = true;
+			DEBUG_LOG("[Device::read_complete_dictionary] SDO error for field "<<pair.first<<": "<<error.what()<<" -> disable entry.");
 		}
 	}
 }

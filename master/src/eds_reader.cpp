@@ -3,7 +3,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * modification, are permitted provided that the following conditions are met:M
  *
  *    1. Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
@@ -42,6 +42,7 @@
 #include <boost/property_tree/ptree.hpp> // property_tree
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/algorithm/string/predicate.hpp> // string::starts_with()
+#include  <boost/algorithm/string/trim.hpp> // trim()
 
 namespace kaco {
 
@@ -107,7 +108,7 @@ bool EDSReader::import_entries() {
 
 bool EDSReader::parse_index(const std::string& section, uint16_t index) {
 
-	std::string str_object_type = m_ini.get(section+".ObjectType", "");
+	std::string str_object_type = trim(m_ini.get(section+".ObjectType", ""));
 	
 	uint8_t object_code = (uint8_t) ObjectType::VAR;
 	if (str_object_type.empty()) {
@@ -130,7 +131,7 @@ bool EDSReader::parse_index(const std::string& section, uint16_t index) {
 
 bool EDSReader::parse_var(const std::string& section, uint16_t index, uint8_t subindex, const std::string& name_prefix) {
 
-	std::string var_name = Utils::escape(m_ini.get(section+".ParameterName", ""));
+	std::string var_name = Utils::escape(trim(m_ini.get(section+".ParameterName", "")));
 
 	if (var_name.empty()) {
 		ERROR("[EDSReader::parse_var] Field ParameterName missing");
@@ -143,15 +144,15 @@ bool EDSReader::parse_var(const std::string& section, uint16_t index, uint8_t su
 
 	DEBUG_LOG("[EDSReader::parse_var] Parsing variable "<<section<<": "<<var_name);
 
-	std::string str_sub_number = m_ini.get(section+".SubNumber", "");
-	std::string str_object_type = m_ini.get(section+".ObjectType", "");
-	std::string str_data_type = m_ini.get(section+".DataType", "");
-	std::string str_low_limit = m_ini.get(section+".LowLimit", "");
-	std::string str_high_limit = m_ini.get(section+".HighLimit", "");
-	std::string str_access_type = m_ini.get(section+".AccessType", "");
-	std::string str_default_value = m_ini.get(section+".DefaultValue", "");
-	std::string str_pdo_mapping = m_ini.get(section+".PDOMapping", "");
-	std::string str_obj_flags = m_ini.get(section+".ObjFlags", "");
+	std::string str_sub_number = trim(m_ini.get(section+".SubNumber", ""));
+	std::string str_object_type = trim(m_ini.get(section+".ObjectType", ""));
+	std::string str_data_type = trim(m_ini.get(section+".DataType", ""));
+	std::string str_low_limit = trim(m_ini.get(section+".LowLimit", ""));
+	std::string str_high_limit = trim(m_ini.get(section+".HighLimit", ""));
+	std::string str_access_type = trim(m_ini.get(section+".AccessType", ""));
+	std::string str_default_value = trim(m_ini.get(section+".DefaultValue", ""));
+	std::string str_pdo_mapping = trim(m_ini.get(section+".PDOMapping", ""));
+	std::string str_obj_flags = trim(m_ini.get(section+".ObjFlags", ""));
 
 	Entry entry;
 	entry.name = var_name;
@@ -205,7 +206,7 @@ bool EDSReader::parse_var(const std::string& section, uint16_t index, uint8_t su
 
 bool EDSReader::parse_array_or_record(const std::string& section, uint16_t index) {
 
-	std::string array_name = Utils::escape(m_ini.get(section+".ParameterName", ""));
+	std::string array_name = Utils::escape(trim(m_ini.get(section+".ParameterName", "")));
 
 	if (array_name.empty()) {
 		ERROR("[EDSReader::parse_array_or_record] Field ParameterName missing");
@@ -306,6 +307,16 @@ std::string EDSReader::parse_regex_error(const std::regex_constants::error_type&
 			break;
 	}
 	result += " in element " + element_name;
+	return result;
+}
+
+std::string EDSReader::trim(const std::string& str) {
+	std::string result = str;
+	size_t found = result.find("#");
+	if (found!=std::string::npos) {
+		result = result.substr(0,found);
+	}
+	boost::algorithm::trim(result);
 	return result;
 }
 

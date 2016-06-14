@@ -37,6 +37,8 @@
 
 namespace kaco {
 
+	class Device;
+
 	/// This class provides access to KaCanOpen's EDS library.
 	/// It manages device specific as well as generic CanOpen
 	/// dictionaries.
@@ -67,7 +69,12 @@ namespace kaco {
 		/// \param product_code Product code from identity object in dictionary (one of the mandatory entries)
 		/// \param revision_number Revision number from identity object in dictionary (one of the mandatory entries)
 		/// \returns true if successful
-		bool load_manufacturer_eds(uint32_t vendor_id, uint32_t product_code, uint32_t revision_number);
+		bool load_manufacturer_eds_deprecated(uint32_t vendor_id, uint32_t product_code, uint32_t revision_number);
+
+		/// Loads entries defined in device specific EDS files proviced by manufacturers.
+		/// \param device Reference to the device (needed to fetch some information from the device)
+		/// \returns true if successful
+		bool load_manufacturer_eds(Device& device);
 
 		/// Checks if lookup_library() was successful.
 		/// \returns true if ready
