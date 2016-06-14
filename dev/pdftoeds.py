@@ -164,6 +164,7 @@ class Parser(object):
 		self.unroll = False
 
 	def dump(self,line):
+		print("DUMP "+line)
 		self.fileout.write(line+"\n")
 
 	def parseindex(self,line):
@@ -178,22 +179,32 @@ class Parser(object):
 			self.indices[-1]['indexto'] = search2.group(2)
 			self.indices[-1]['indexrange'] = True
 			print("Adding index "+str(self.indices[-1]['index'])+" - "+str(self.indices[-1]['indexto']))
+		if search or search2:
+			# TODO: same thing for parsesubindex()?
+			self.done_name = False
+			self.done_objectcode = False
+			self.done_datatype = False
+			self.done_category = False
 
 		search = re.match(r"^\s*Name\s*(\w.*)$", line, re.IGNORECASE)
-		if search:
+		if not self.done_name and search:
 			self.indices[-1]['name'] = search.group(1)
+			self.done_name = True
 
 		search = re.match(r"^\s*Object code\s*(\w.*)$", line, re.IGNORECASE)
-		if search:
+		if not self.done_objectcode and search:
 			self.indices[-1]['objectcode'] = search.group(1)
+			self.done_objectcode = True
 
 		search = re.match(r"^\s*Data type\s*(\w.*)$", line, re.IGNORECASE)
-		if search:
+		if not self.done_datatype and search:
 			self.indices[-1]['datatype'] = search.group(1)
+			self.done_datatype = True
 
 		search = re.match(r"^\s*Category\s*(\w.*)$", line, re.IGNORECASE)
-		if search:
+		if not self.done_category and search:
 			self.indices[-1]['category'] = search.group(1)
+			self.done_category = True
 
 	def parsesubindex(self,line):
 
@@ -265,7 +276,7 @@ class Parser(object):
 		if indexmap['objectcode']=="ARRAY" and int(str(subindex),16)==0:
 			# array: number of items is uint8.
 			self.dump("DataType=0x0005 # UNSIGNED8")
-		else:
+		elif indexmap['objectcode']=="ARRAY" :
 			self.dump("DataType="+str(Converter.datatype(str(indexmap['datatype']),subindex))+" # "+str(indexmap['datatype']))
 		self.dump("AccessType="+Converter.access(str(map['access'])))
 		self.dump("# DefaultValue="+str(map['defaultvalue']))
@@ -292,11 +303,16 @@ class Parser(object):
 			elif subindex['subindexrange']:
 				self.printsubindex(map,subindex,index,subindex['subindex'],""," # repeat until "+str(index)+"sub"+str(subindex['subindexto']))
 			else:
-				self.printsubindex(map,subindex,index,subindex['subindex'],"","")
+				if subindex['subindex']=="":
+					print("WARNING subindex is empty")
+				else:
+					self.printsubindex(map,subindex,index,subindex['subindex'],"","")
 
 	def printindex(self,map,index,appendix,rangecomment):
 		if len(map['subindices'])==1 and not map['subindices'][-1]['subindexrange']:
 			self.printvar(map,index,appendix,rangecomment)
+		elif len(map['subindices'])==0:
+			print("WARNING no subindices");
 		else:
 			self.printobject(map,index,appendix,rangecomment)
 
@@ -345,9 +361,10 @@ class Parser(object):
 			self.mode = Mode.index
 
 		if re.match(r"^\s*Sub-index\s*[\dABCDEFabcdef]{1,2}\s?(h)?( to [\dABCDEFabcdef]{1,2}\s?(h)?)?$",
-			line, re.IGNORECASE):# or (self.mode==Mode.index and re.match(
+			line, re.IGNORECASE) or (self.mode==Mode.index and re.match(
 				#r"^\s*(Access|Description|Data type|Entry category|PDO mapping|Value range|Default value)\s*.*$",
-				#line, re.IGNORECASE)):
+				r"^\s*ENTRY DESCRIPTION.*$",
+				line, re.IGNORECASE)):
 			self.indices[-1]['subindices'].append({
 				'subindex': "",
 				'subindexto': "",
