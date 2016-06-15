@@ -80,8 +80,6 @@ namespace kaco {
 	///
 	///    Methods in (1) should be run in sequence before accessing
 	///    dictionary entries (group 2).
-	///
-	/// \todo Add add_entry() method.
 	class Device {
 
 	public:
@@ -214,6 +212,15 @@ namespace kaco {
 		/// \throws sdo_error
 		/// \todo check access_type from dictionary
 		void set_entry(const uint16_t index, const uint8_t subindex, const Value& value, const WriteAccessMethod access_method = WriteAccessMethod::use_default);
+
+		/// Adds an entry to the dictionary. You have to take care that exactly this entry exists on the device for yourself!
+		/// \param index Index
+		/// \param subindex Sub-index
+		/// \param name Name
+		/// \param type Data type
+		/// \param access_type Access rights
+		/// \throws canopen_error if entry with this name or index already exists.
+		void add_entry(const uint16_t index, const uint8_t subindex, const std::string& name, const Type type, const AccessType access_type);
 
 		/// Returns the CiA profile number
 		/// \throws sdo_error

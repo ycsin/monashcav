@@ -55,7 +55,7 @@ struct Utils {
 	static Type type_code_to_type(uint16_t code);
 
 	/// Converts entry names to lower case and replaces all spaces and '-' by underscores.
-	static std::string escape(std::string str);
+	static std::string escape(const std::string& str);
 
 	/// Converts a string containing a hexadecimal numer to unsigned.
 	static unsigned long long  hexstr_to_uint(std::string str);

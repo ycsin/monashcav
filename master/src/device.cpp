@@ -147,6 +147,20 @@ void Device::set_entry(const uint16_t index, const uint8_t subindex, const Value
 	}
 }
 
+void Device::add_entry(const uint16_t index, const uint8_t subindex, const std::string& name, const Type type, const AccessType access_type) {
+	const std::string entry_name = Utils::escape(name);
+	if (m_name_to_address.count(entry_name)>0) {
+		throw canopen_error("[Device::add_entry] Entry with name \""+entry_name+"\" already exists.");
+	}
+	if (has_entry(index, subindex)) {
+		throw canopen_error("[Device::add_entry] Entry with index "+std::to_string(index)+"sub"+std::to_string(subindex)+" already exists.");
+	}
+	Entry entry(index,subindex,entry_name,type,access_type);
+	const Address address{index,subindex};
+	m_dictionary.insert(std::make_pair(address, std::move(entry)));
+	m_name_to_address.insert(std::make_pair(entry_name,address));
+}
+
 void Device::add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_name, uint8_t offset) {
 
 	// TODO: update entry's default access method

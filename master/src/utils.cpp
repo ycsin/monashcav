@@ -162,7 +162,7 @@ Type Utils::type_code_to_type(uint16_t code) {
 	}
 }
 
-std::string Utils::escape(std::string str) {
+std::string Utils::escape(const std::string& str) {
 	std::string out = str;
 	std::transform(out.begin(), out.end(), out.begin(), ::tolower);
 	std::replace(out.begin(), out.end(), ' ', '_');

@@ -54,6 +54,7 @@ Entry::Entry(const uint16_t _index, const uint8_t _subindex, const std::string& 
 		access_type(_access_type),
 		disabled(false),
 		is_generic(false),
+		m_valid(false),
 		m_value_changed_callbacks_mutex(new std::mutex),
 		m_read_write_mutex(new std::recursive_mutex)
 	{ }
