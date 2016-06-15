@@ -99,6 +99,7 @@ namespace kaco {
 		Device(Device&&) = delete;
 
 		/// Destructor
+		/// \todo Something to shut down? NMT?
 		~Device();
 
 		/// Returns the node ID of the device.
@@ -110,21 +111,18 @@ namespace kaco {
 
 		/// Starts the node via NMT protocol and loads
 		/// mandatory entries, operations, and constants.
-		/// \return True, if entries, operations, and constants are successfully loaded
 		/// \todo Add m_started member?
-		bool start();
+		void start();
 
 		/// Tries to load the most specific EDS file available in KaCanOpen's internal EDS library.
 		/// This is either device specific, CiA profile specific, or mandatory CiA 301.
-		
 		/// \throws canopen_error if mandatory CiA 301 dictionary entries cannot be loaded.
 		void load_dictionary_from_library();
 
 		/// Loads the dictionary from a custom EDS file.
 		/// \param path A filesystem path where the EDS library can be found.
-		/// \returns true, if successful
-		/// \todo change error handling -> exception
-		bool load_dictionary_from_eds(std::string path);
+		/// \throws canopen_error if the EDS file cannot be loaded.
+		void load_dictionary_from_eds(const std::string& path);
 
 		/// Loads convenience operations associated with the device profile.
 		/// \returns true, if successful

@@ -51,24 +51,23 @@ Device::Device(Core& core, uint8_t node_id)
 Device::~Device() 
 	{ }
 
-bool Device::start() {
+void Device::start() {
 
 	m_core.nmt.send_nmt_message(m_node_id,NMT::Command::start_node);
 
-	bool success = m_eds_library.lookup_library();
-
-	if (!success) {
-		ERROR("[Device::start] EDS library not found. Please fix or manage dictionary by yourself.");
-	} else {
-		success = m_eds_library.load_mandatory_entries();
-		if (!success) {
-			ERROR("[Device::start] Could not load mandatory dictionary entries. Please fix or manage dictionary by yourself.");
-		}
+	if (!m_eds_library.lookup_library()) {
+		throw canopen_error("[Device::start] EDS library not found. If and only if you make sure for yourself, that mandatory"
+			" entries and operations are available, you can catch this error and go on.");
 	}
 
-	success = load_operations() && success;
-	success = load_constants() && success;
-	return success;
+	if (!m_eds_library.load_mandatory_entries()) {
+		throw canopen_error("[Device::start] Could not load mandatory dictionary entries."
+			" If and only if you make sure for yourself, that mandatory"
+			" entries and operations are available, you can catch this error and go on.");
+	}
+
+	load_operations();
+	load_constants();
 
 }
 
@@ -259,10 +258,11 @@ void Device::pdo_received_callback(const ReceivePDOMapping& mapping, std::vector
 
 	if (data.size() < offset+type_size) {
 		// We don't throw an exception here, because this could be a network error.
-		ERROR("[Device::pdo_received_callback] PDO has wrong size!");
+		WARN("[Device::pdo_received_callback] PDO has wrong size. Ignoring it...");
 		DUMP(data.size());
 		DUMP(offset);
 		DUMP(type_size);
+		return;
 	}
 
 	DEBUG_LOG("Updating entry "<<entry.name<<".");
@@ -323,82 +323,65 @@ void Device::set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& va
 
 void Device::load_dictionary_from_library() {
 
-	if (m_eds_library.ready()) {
-
-		uint16_t profile = get_device_profile_number();
-
-		DEBUG_LOG("Device::load_dictionary_from_library()...");
-
-		// First, we try to load manufacturer specific entries.
-
-		Config::eds_library_clear_dictionary = true;
-		bool success = m_eds_library.load_manufacturer_eds(*this);
-		Config::eds_library_clear_dictionary = false;
-		
-		if (success) {
-			DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded manufacturer-specific dictionary: " << m_eds_library.get_most_recent_eds_file_path());
-			DEBUG_LOG("[Device::load_dictionary_from_library] Now we will add additional mappings from standard conformal entry names to the entries...");
-			Config::eds_reader_just_add_mappings = true;
-		} else {
-			DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": There is no manufacturer-specific EDS file available. Going on with the default dictionary...");
-			Config::eds_reader_just_add_mappings = false;
-		}
-
-		// Load entries like they are defined in the CiA CANopen standard documents...
-
-		Config::eds_reader_mark_entries_as_generic = true;
-		Config::eds_library_clear_dictionary = false;
-		success = m_eds_library.load_default_eds(profile);
-
-		if (success) {
-			DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded profile-specific dictionary: " << m_eds_library.get_most_recent_eds_file_path());
-		} else {
-			Config::eds_library_clear_dictionary = false;
-			success = m_eds_library.load_mandatory_entries();
-			if (success) {
-				DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded mandatory entries: " << m_eds_library.get_most_recent_eds_file_path());
-			} else {
-				throw canopen_error("Could not load mandatory CiA 301 dictionary entries for device with ID "+std::to_string(m_node_id)+". This can break various parts of KaCanOpen!");
-			}
-		}
-
-		Config::eds_reader_mark_entries_as_generic = false;
-
-	} else {
+	if (!m_eds_library.ready()) {
 		throw canopen_error("[Device::load_dictionary_from_library] EDS library is not available.");
 	}
 
-}
+	uint16_t profile = get_device_profile_number();
 
-bool Device::load_dictionary_from_eds(std::string path) {
+	DEBUG_LOG("Device::load_dictionary_from_library()...");
 
-	if (m_eds_library.ready()) {
+	// First, we try to load manufacturer specific entries.
 
-		m_eds_library.reset_dictionary();
-		Config::eds_reader_just_add_mappings = false;
-		Config::eds_reader_mark_entries_as_generic = false;
-
-		EDSReader reader(m_dictionary, m_name_to_address);
-		bool success = reader.load_file(path);
-
-		if (!success) {
-			ERROR("[EDSLibrary::load_dictionary_from_eds] Loading file not successful.");
-			return false;
-		}
-
-		success = reader.import_entries();
-
-		if (!success) {
-			ERROR("[EDSLibrary::load_dictionary_from_eds] Importing entries failed.");
-			return false;
-		}
-
+	Config::eds_library_clear_dictionary = true;
+	bool success = m_eds_library.load_manufacturer_eds(*this);
+	Config::eds_library_clear_dictionary = false;
+	
+	if (success) {
+		DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded manufacturer-specific dictionary: " << m_eds_library.get_most_recent_eds_file_path());
+		DEBUG_LOG("[Device::load_dictionary_from_library] Now we will add additional mappings from standard conformal entry names to the entries...");
+		Config::eds_reader_just_add_mappings = true;
 	} else {
-		ERROR("[Device::load_dictionary_from_eds] EDS library not ready. Please manage dictionary by yourself.");
-		return false;
+		DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": There is no manufacturer-specific EDS file available. Going on with the default dictionary...");
+		Config::eds_reader_just_add_mappings = false;
 	}
 
-	return true;
+	// Load entries like they are defined in the CiA CANopen standard documents...
+
+	Config::eds_reader_mark_entries_as_generic = true;
+	Config::eds_library_clear_dictionary = false;
+	success = m_eds_library.load_default_eds(profile);
+
+	if (success) {
+		DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded profile-specific dictionary: " << m_eds_library.get_most_recent_eds_file_path());
+	} else {
+		Config::eds_library_clear_dictionary = false;
+		success = m_eds_library.load_mandatory_entries();
+		if (success) {
+			DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded mandatory entries: " << m_eds_library.get_most_recent_eds_file_path());
+		} else {
+			throw canopen_error("Could not load mandatory CiA 301 dictionary entries for device with ID "+std::to_string(m_node_id)+". This can break various parts of KaCanOpen!");
+		}
+	}
+
+	Config::eds_reader_mark_entries_as_generic = false;
+
+}
+
+void Device::load_dictionary_from_eds(const std::string& path) {
+
+	m_eds_library.reset_dictionary();
+	Config::eds_reader_just_add_mappings = false;
+	Config::eds_reader_mark_entries_as_generic = false;
+	EDSReader reader(m_dictionary, m_name_to_address);
+
+	if (!reader.load_file(path)) {
+		throw canopen_error("[EDSLibrary::load_dictionary_from_eds] Loading file not successful: "+path);
+	}
+
+	if (!reader.import_entries()) {
+		throw canopen_error("[EDSLibrary::load_dictionary_from_eds] Importing entries failed for file "+path);
+	}
 
 }
 

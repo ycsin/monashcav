@@ -35,6 +35,7 @@
 #include <string>
 #include <cstdint>
 #include <algorithm>
+#include <stdexcept>
 
 namespace kaco {
 
