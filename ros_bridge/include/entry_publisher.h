@@ -34,7 +34,7 @@
 #include "device.h"
 #include "publisher.h"
 #include "ros/ros.h"
- 
+
 #include <string>
 
 namespace kaco {
@@ -49,10 +49,8 @@ namespace kaco {
 		/// Constructor
 		/// \param device The CanOpen device
 		/// \param entry_name The name of the entry. See device profile.
-		/// \param array_index If the entry is not an array, this should be zero, otherwise it's the array index
 		/// \param access_method You can choose default/sdo/pdo method. See kaco::Device docs.
-		EntryPublisher(Device& device, std::string entry_name,
-			uint8_t array_index=0, ReadAccessMethod access_method = ReadAccessMethod::use_default);
+		EntryPublisher(Device& device, const std::string& entry_name, const ReadAccessMethod access_method = ReadAccessMethod::use_default);
 
 		/// \see interface Publisher
 		void advertise() override;
@@ -73,7 +71,6 @@ namespace kaco {
 
 		Device& m_device;
 		std::string m_entry_name;
-		uint8_t m_array_index;
 		ReadAccessMethod m_access_method;
 		Type m_type;
 

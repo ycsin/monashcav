@@ -54,18 +54,6 @@ namespace kaco {
 
 	public:
 
-		/// Tag class for distinguishing constructors.
-		struct VariableTag {};
-
-		/// Tag class for distinguishing constructors.
-		struct ArrayTag {};
-
-		/// Tag for distinguishing constructors.
-		static const VariableTag variable_tag;
-
-		/// Tag for distinguishing constructors.
-		static const ArrayTag array_tag;
-
 		/// type of a callback for a value changed event
 		/// Important: Never call add_value_changed_callback()
 		///   from within (-> deadlock)!
@@ -74,11 +62,8 @@ namespace kaco {
 		/// Constructs an empty entry.
 		Entry();
 
-		/// standard constructor
-		Entry(VariableTag tag, uint16_t _index, uint8_t _subindex, std::string _name, Type _type, AccessType _access);
-
-		/// array constructor
-		Entry(ArrayTag tag, uint16_t _index, std::string _name, Type _type, AccessType _access);
+		/// Standard constructor
+		Entry(const uint16_t _index, const uint8_t _subindex, const std::string& _name, const Type _type, const AccessType _access_type);
 
 		/// copy constructor
 		Entry(const Entry& other) = delete;
@@ -92,17 +77,17 @@ namespace kaco {
 		/// move assignment
 		Entry& operator=(Entry&& other) = default;
 
-		/// Sets the value. If the entry is an array, array_index can be specified.
+		/// Sets the value.
 		/// \remark thread-safe
-		void set_value(const Value& value, uint8_t array_index=0);
+		void set_value(const Value& value);
 
-		/// Returns the value. If the entry is an array, array_index can be specified.
+		/// Returns the value.
 		/// \remark thread-safe
-		const Value& get_value(uint8_t array_index=0) const;
+		const Value& get_value() const;
 
-		/// Returns if the value is set/valid.  If the entry is an array, array_index can be specified.
+		/// Returns if the value is set/valid.
 		/// \remark thread-safe
-		bool valid(uint8_t array_index=0) const;
+		bool valid() const;
 
 		/// Returns the data type.
 		/// \remark thread-safe
@@ -139,9 +124,6 @@ namespace kaco {
 		/// Accessibility of the entry 
 		AccessType access_type;
 
-		/// Distinguishes arrays (index + dynamic array_index) from regular variables (index and subindex)
-		bool is_array = false;
-
 		/// Standard method for reading this entry.
 		/// Used by Device::get_entry().
 		ReadAccessMethod read_access_method = ReadAccessMethod::sdo;
@@ -169,8 +151,8 @@ namespace kaco {
 
 	private:
 
-		std::vector<Value> m_value;
-		std::vector<bool> m_valid;
+		Value m_value;
+		bool m_valid;
 		Value m_dummy_value;
 
 		std::vector<ValueChangedCallback> m_value_changed_callbacks;

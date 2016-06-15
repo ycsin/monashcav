@@ -46,7 +46,7 @@ Entry::Entry()
 	{ }
 
 // standard constructor
-Entry::Entry(Entry::VariableTag, uint16_t _index, uint8_t _subindex, std::string _name, Type _type, AccessType _access_type)
+Entry::Entry(const uint16_t _index, const uint8_t _subindex, const std::string& _name, const Type _type, const AccessType _access_type)
 	: index(_index),
 		subindex(_subindex),
 		name(_name),
@@ -58,29 +58,11 @@ Entry::Entry(Entry::VariableTag, uint16_t _index, uint8_t _subindex, std::string
 		m_read_write_mutex(new std::recursive_mutex)
 	{ }
 
-// array constructor
-Entry::Entry(Entry::ArrayTag, uint16_t _index, std::string _name, Type _type, AccessType _access_type)
-	: index(_index),
-		subindex(0),
-		name(_name),
-		type(_type),
-		access_type(_access_type),
-		is_array(true),
-		disabled(false),
-		is_generic(false),
-		m_value_changed_callbacks_mutex(new std::mutex),
-		m_read_write_mutex(new std::recursive_mutex)
-	{ }
-
-void Entry::set_value(const Value& value, uint8_t array_index) {
+void Entry::set_value(const Value& value) {
 
 	if (value.type != type) {
+		// TODO: exception!
 		ERROR("[Entry::set_value] You passed a value of wrong type.");
-		return;
-	}
-
-	if (array_index>0 && !is_array) {
-		ERROR("[Entry::set_value] This is no array but you specified an array_index.");
 		return;
 	}
 
@@ -88,23 +70,14 @@ void Entry::set_value(const Value& value, uint8_t array_index) {
 
 	{
 		std::lock_guard<std::recursive_mutex> lock(*m_read_write_mutex);
-
-		if (m_value.size()<=array_index) { 
-			m_value.resize(array_index+1);
+		
+		if (m_value.type != type || m_value != value) {
 			value_changed = true;
 		}
 
-		if (m_valid.size()<=array_index) {
-			m_valid.resize(array_index+1, false);
-			value_changed = true;
-		}
+		m_value = value;
+		m_valid = true;
 
-		if (!value_changed && (m_value[array_index].type != type || m_value[array_index] != value) ) {
-			value_changed = true;
-		}
-
-		m_value[array_index] = value;
-		m_valid[array_index] = true;
 	}
 
 	if (value_changed) {
@@ -118,36 +91,22 @@ void Entry::set_value(const Value& value, uint8_t array_index) {
 
 }
 
-const Value& Entry::get_value(uint8_t array_index) const {
+const Value& Entry::get_value() const {
 
 	std::lock_guard<std::recursive_mutex> lock(*m_read_write_mutex);
 
-	if (valid(array_index)) {
-		return m_value[array_index];
+	if (valid()) {
+		return m_value;
 	} else {
+		// TODO: exception!
 		ERROR("[Entry::get_value] Value not valid.");
 		return m_dummy_value;
 	}
 
 }
 
-bool Entry::valid(uint8_t array_index) const {
-
-	if (array_index>0 && !is_array) {
-		ERROR("[Entry::valid] This is no array but you specified an array_index.");
-		return false;
-	}
-
-	std::lock_guard<std::recursive_mutex> lock(*m_read_write_mutex);
-
-	if ( array_index>=m_value.size()
-		|| array_index>=m_valid.size()
-		|| !m_valid[array_index] ) {
-		return false;
-	}
-
-	return true;
-
+bool Entry::valid() const {
+	return m_valid;
 }
 
 Type Entry::get_type() const {

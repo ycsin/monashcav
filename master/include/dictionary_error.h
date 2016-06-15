@@ -56,7 +56,6 @@ namespace kaco {
 			read_only,
 			write_only,
 			wrong_type,
-			no_array,
 			mapping_size,
 			mapping_overlap,
 			unknown_operation,

@@ -39,6 +39,7 @@
 namespace kaco {
 
 	/// This struct represents one mapped entry inside a TransmitPDOMapping.
+	/// \todo Add index/subindex overload?
 	struct Mapping {
 
 		/// Name of the mapped dictionary entry.
@@ -46,9 +47,6 @@ namespace kaco {
 
 		/// index of the first mapped byte in the PDO message
 		uint8_t offset;
-
-		/// Array index (only relevant for arrays)
-		uint8_t array_index;
 
 	};
 

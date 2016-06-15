@@ -70,7 +70,7 @@ void TransmitPDOMapping::send() const {
 
 		const std::string entry_name = Utils::escape(mapping.entry_name);
 		const Entry& entry = m_dictionary.at(m_name_to_address.at(entry_name));
-		const Value& value = entry.get_value(mapping.array_index);
+		const Value& value = entry.get_value();
 		const std::vector<uint8_t> bytes = value.get_bytes();
 		assert(mapping.offset+bytes.size() <= 8);
 
@@ -112,10 +112,6 @@ void TransmitPDOMapping::check_correctness() const {
 		if (mapping.offset+type_size > 8) {
 			throw dictionary_error(dictionary_error::type::mapping_size, entry_name,
 				"mapping.offset ("+std::to_string(mapping.offset)+") + type_size ("+std::to_string(type_size)+") > 8.");
-		}
-
-		if (mapping.array_index > 0 && !entry.is_array) {
-			throw dictionary_error(dictionary_error::type::no_array, entry_name);
 		}
 
 		for (uint8_t i=mapping.offset; i<mapping.offset+type_size; ++i) {

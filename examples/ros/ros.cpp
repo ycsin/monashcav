@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 	device.add_receive_pdo_mapping(0x188, "Read input 8-bit/Digital Inputs 9-16", 1); // offset 1
 
 	// set some output (optional)
-	device.set_entry("Write output 8-bit/Digital Outputs 1-8", (uint8_t) 0xFF, 0);
+	device.set_entry("Write output 8-bit/Digital Outputs 1-8", (uint8_t) 0xFF);
 
 	ros::init(argc, argv, "canopen_bridge");
 

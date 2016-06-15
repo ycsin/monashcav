@@ -83,11 +83,11 @@ int main() {
 
 	// TODO: first configure PDO on device side?
 
-	device.add_receive_pdo_mapping(0x180+node_id, "Read input 8-bit/Digital Inputs 1-8", 0, 0); // offset 0,
-	device.add_receive_pdo_mapping(0x180+node_id, "Read input 8-bit/Digital Inputs 9-16", 1, 0); // offset 1
+	device.add_receive_pdo_mapping(0x180+node_id, "Read input 8-bit/Digital Inputs 1-8", 0); // offset 0,
+	device.add_receive_pdo_mapping(0x180+node_id, "Read input 8-bit/Digital Inputs 9-16", 1); // offset 1
 	
 	// transmit PDO on change
-	device.add_transmit_pdo_mapping(0x200+node_id, {{"Write output 8-bit/Digital Outputs 1-8", 0, 0}}); // offset 0
+	device.add_transmit_pdo_mapping(0x200+node_id, {{"Write output 8-bit/Digital Outputs 1-8", 0}}); // offset 0
 
 	// transmit PDO every 500ms
 	//device.add_transmit_pdo_mapping(0x20A, {{"write_output", 0, 0, 0}}, kaco::TransmissionType::PERIODIC, std::chrono::milliseconds(500));
@@ -95,12 +95,12 @@ int main() {
 	for (uint8_t i=0; i<10; ++i) {
 
 		PRINT("Set output to 0x"<<std::hex<<i<<" (via cache!) and wait 1 second");
-		device.set_entry("Write output 8-bit/Digital Outputs 1-8", i, 0, kaco::WriteAccessMethod::cache);
+		device.set_entry("Write output 8-bit/Digital Outputs 1-8", i, kaco::WriteAccessMethod::cache);
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
-		DUMP_HEX(device.get_entry("Write output 8-bit/Digital Outputs 1-8",0,kaco::ReadAccessMethod::cache));
-		DUMP_HEX(device.get_entry("Read input 8-bit/Digital Inputs 1-8",0,kaco::ReadAccessMethod::cache));
-		DUMP_HEX(device.get_entry("Read input 8-bit/Digital Inputs 9-16",0,kaco::ReadAccessMethod::cache));
+		DUMP_HEX(device.get_entry("Write output 8-bit/Digital Outputs 1-8",kaco::ReadAccessMethod::cache));
+		DUMP_HEX(device.get_entry("Read input 8-bit/Digital Inputs 1-8",kaco::ReadAccessMethod::cache));
+		DUMP_HEX(device.get_entry("Read input 8-bit/Digital Inputs 9-16",kaco::ReadAccessMethod::cache));
 
 	}
 

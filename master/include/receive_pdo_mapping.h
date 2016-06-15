@@ -38,6 +38,7 @@ namespace kaco {
 	/// This struct represents a mapping from one receive PDO
 	/// to one dictionary entry. There may be multiple
 	/// ReceivePDOMapping instances for one PDO.
+	/// \todo Add index/subindex overload?
 	struct ReceivePDOMapping {
 
 		/// COB-ID of the PDO
@@ -48,9 +49,6 @@ namespace kaco {
 
 		/// index of the first mapped byte in the PDO message
 		uint8_t offset;
-
-		/// Array index (only relevant for arrays)
-		uint8_t array_index;
 
 	};
 

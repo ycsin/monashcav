@@ -59,10 +59,8 @@ namespace kaco {
 		/// Constructor
 		/// \param device The CanOpen device
 		/// \param entry_name The name of the entry. See device profile.
-		/// \param array_index If the entry is not an array, this should be zero, otherwise it's the array index
 		/// \param access_method You can choose default/sdo/pdo method. See kaco::Device docs.
-		EntrySubscriber(Device& device, std::string entry_name,
-			uint8_t array_index=0, WriteAccessMethod access_method = WriteAccessMethod::use_default);
+		EntrySubscriber(Device& device, const std::string& entry_name, const WriteAccessMethod access_method = WriteAccessMethod::use_default);
 
 		/// \see interface Subscriber
 		void advertise() override;
@@ -89,7 +87,6 @@ namespace kaco {
 
 		Device& m_device;
 		std::string m_entry_name;
-		uint8_t m_array_index;
 		WriteAccessMethod m_access_method;
 		Type m_type;
 

@@ -77,129 +77,77 @@ uint8_t Device::get_node_id() const {
 }
 
 bool Device::has_entry(const std::string& entry_name) {
-
 	const std::string name = Utils::escape(entry_name);
-	return m_name_to_address.count(name) != 0; // TODO DEBUG( && m_dictionary[m_name_to_address[name]].count() != 0 );
-
+	return m_name_to_address.count(name) > 0 && has_entry(m_name_to_address[name].index, m_name_to_address[name].subindex);
 }
 
-Value Device::get_entry_via_sdo(uint32_t index, uint8_t subindex, Type type) {
-
-	sdo_error last_error(sdo_error::type::unknown);
-
-	for (size_t i=0; i<Config::repeats_on_sdo_timeout+1; ++i) {
-		try {
-			std::vector<uint8_t> data = m_core.sdo.upload(m_node_id, index, subindex);
-			return Value(type, data);
-		} catch (const sdo_error& error) {
-			last_error = error;
-			if (i<Config::repeats_on_sdo_timeout) {
-				DEBUG_LOG("[Device::get_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
-					<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
-			}
-		}
-	}
-	
-	throw sdo_error(sdo_error::type::response_timeout, "Device::get_entry_via_sdo() failed after "
-		+std::to_string(Config::repeats_on_sdo_timeout+1)+" repeats. Last error: "+std::string(last_error.what()));
-
-}
-
-const Value& Device::get_entry(const std::string& entry_name, uint8_t array_index, ReadAccessMethod access_method) {
-
-	const std::string name = Utils::escape(entry_name);
-
-	if (!has_entry(name)) {
-		throw dictionary_error(dictionary_error::type::unknown_entry, name);
-	}
-
-	Entry& entry = m_dictionary[m_name_to_address[name]];
-
-	if (array_index > 0 && !entry.is_array) {
-		throw dictionary_error(dictionary_error::type::no_array, name);
-	}
-
-	if (access_method==ReadAccessMethod::sdo || (access_method==ReadAccessMethod::use_default && entry.read_access_method==ReadAccessMethod::sdo)) {
-		
-		DEBUG_LOG("[Device::get_entry] update_on_read.");
-
-		uint8_t subindex = (entry.is_array) ? 0x1+array_index : entry.subindex;
-		entry.set_value(get_entry_via_sdo(entry.index, subindex, entry.type), array_index);
-
-	}
-
-	return entry.get_value(array_index);
-
+bool Device::has_entry(const uint16_t index, const uint8_t subindex) {
+	return m_dictionary.count(Address{index,subindex}) > 0;
 }
 
 Type Device::get_entry_type(const std::string& entry_name) {
-
 	const std::string name = Utils::escape(entry_name);
-
 	if (!has_entry(name)) {
 		throw dictionary_error(dictionary_error::type::unknown_entry, name);
 	}
-
 	return m_dictionary[m_name_to_address[name]].get_type();
-
 }
 
-void Device::set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& value) {
-
-	sdo_error last_error(sdo_error::type::unknown);
-
-	for (size_t i=0; i<Config::repeats_on_sdo_timeout+1; ++i) {
-		try {
-			const auto& bytes = value.get_bytes();
-			m_core.sdo.download(m_node_id,index,subindex,bytes.size(),bytes);
-			return;
-		} catch (const sdo_error& error) {
-			last_error = error;
-			if (i<Config::repeats_on_sdo_timeout) {
-				DEBUG_LOG("[Device::set_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
-					<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
-			}
-		}
+Type Device::get_entry_type(const uint16_t index, const uint8_t subindex) {
+	if (!has_entry(index, subindex)) {
+		throw dictionary_error(dictionary_error::type::unknown_entry, std::to_string(index)+"sub"+std::to_string(subindex));
 	}
-
-	throw sdo_error(sdo_error::type::response_timeout, "Device::set_entry_via_sdo() failed after "
-		+std::to_string(Config::repeats_on_sdo_timeout+1)+" repeats. Last error: "+std::string(last_error.what()));
-
+	return m_dictionary[Address{index,subindex}].get_type();
 }
 
-void Device::set_entry(const std::string& entry_name, const Value& value, uint8_t array_index, WriteAccessMethod access_method) {
-
+const Value& Device::get_entry(const std::string& entry_name, const ReadAccessMethod access_method) {
 	const std::string name = Utils::escape(entry_name);
-
 	if (!has_entry(name)) {
 		throw dictionary_error(dictionary_error::type::unknown_entry, name);
 	}
+	const Address address = m_name_to_address[name];
+	return get_entry(address.index, address.subindex, access_method);
+}
 
-	Entry& entry = m_dictionary[m_name_to_address[name]];
-
-	if (array_index > 0 && !entry.is_array) {
-		throw dictionary_error(dictionary_error::type::no_array, name);
+const Value& Device::get_entry(const uint16_t index, const uint8_t subindex, const ReadAccessMethod access_method) {
+	if (!has_entry(index, subindex)) {
+		throw dictionary_error(dictionary_error::type::unknown_entry, std::to_string(index)+"sub"+std::to_string(subindex));
 	}
+	Entry& entry = m_dictionary[Address{index,subindex}];
+	if (access_method==ReadAccessMethod::sdo || (access_method==ReadAccessMethod::use_default && entry.read_access_method==ReadAccessMethod::sdo)) {
+		DEBUG_LOG("[Device::get_entry] SDO update on read.");
+		entry.set_value(get_entry_via_sdo(entry.index, entry.subindex, entry.type));
+	}
+	return entry.get_value();
+}
 
+void Device::set_entry(const std::string& entry_name, const Value& value, const WriteAccessMethod access_method) {
+	const std::string name = Utils::escape(entry_name);
+	if (!has_entry(name)) {
+		throw dictionary_error(dictionary_error::type::unknown_entry, name);
+	}
+	const Address address = m_name_to_address[name];
+	return set_entry(address.index, address.subindex, value, access_method);
+}
+
+void Device::set_entry(const uint16_t index, const uint8_t subindex, const Value& value, const WriteAccessMethod access_method) {
+	const std::string index_string = std::to_string(index)+"sub"+std::to_string(subindex);
+	if (!has_entry(index, subindex)) {
+		throw dictionary_error(dictionary_error::type::unknown_entry, index_string);
+	}
+	Entry& entry = m_dictionary[Address{index,subindex}];
 	if (value.type != entry.type) {
-		throw dictionary_error(dictionary_error::type::wrong_type, name,
+		throw dictionary_error(dictionary_error::type::wrong_type, index_string,
 			"Entry type: "+Utils::type_to_string(entry.type)+", given type: "+Utils::type_to_string(value.type));
 	}
-
-	entry.set_value(value, array_index);
-
+	entry.set_value(value);
 	if (access_method==WriteAccessMethod::sdo || (access_method==WriteAccessMethod::use_default && entry.write_access_method==WriteAccessMethod::sdo)) {
-
-		DEBUG_LOG("[Device::set_entry] update_on_write.");
-
-		const uint8_t subindex = (entry.is_array) ? 0x1+array_index : entry.subindex;
-		set_entry_via_sdo(entry.index, subindex, value);
-
+		DEBUG_LOG("[Device::set_entry] SDO update on write.");
+		set_entry_via_sdo(entry.index, entry.subindex, value);
 	}
-
 }
 
-void Device::add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_name, uint8_t offset, uint8_t array_index) {
+void Device::add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_name, uint8_t offset) {
 
 	// TODO: update entry's default access method
 
@@ -210,10 +158,6 @@ void Device::add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_n
 	}
 
 	Entry& entry = m_dictionary[m_name_to_address[name]];
-
-	if (array_index > 0 && !entry.is_array) {
-		throw dictionary_error(dictionary_error::type::no_array, name);
-	}
 
 	const uint8_t type_size = Utils::get_type_size(entry.type);
 
@@ -227,7 +171,7 @@ void Device::add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_n
 
 	{
 		std::lock_guard<std::mutex> lock(m_receive_pdo_mappings_mutex);
-		m_receive_pdo_mappings.push_front({cob_id,name,offset,array_index});
+		m_receive_pdo_mappings.push_front({cob_id,name,offset});
 		pdo_temp = &m_receive_pdo_mappings.front();
 	}
 	
@@ -296,7 +240,6 @@ void Device::pdo_received_callback(const ReceivePDOMapping& mapping, std::vector
 
 	const std::string entry_name = Utils::escape(mapping.entry_name);
 	Entry& entry = m_dictionary[m_name_to_address[entry_name]];
-	const uint8_t array_index = mapping.array_index;
 	const uint8_t offset = mapping.offset;
 	const uint8_t type_size = Utils::get_type_size(entry.type);
 
@@ -308,15 +251,60 @@ void Device::pdo_received_callback(const ReceivePDOMapping& mapping, std::vector
 		DUMP(type_size);
 	}
 
-	DEBUG_LOG("Updating entry "<<entry.name<<" (in case it's an array, index="<<array_index<<")");
+	DEBUG_LOG("Updating entry "<<entry.name<<".");
 	std::vector<uint8_t> bytes(data.begin()+offset, data.begin()+offset+type_size);
-	entry.set_value(Value(entry.type,bytes), array_index);
+	entry.set_value(Value(entry.type,bytes));
 
 }
 
 uint16_t Device::get_device_profile_number() {
 	uint32_t device_type = get_entry("Device type");
 	return (device_type & 0xFFFF);
+}
+
+Value Device::get_entry_via_sdo(uint32_t index, uint8_t subindex, Type type) {
+
+	sdo_error last_error(sdo_error::type::unknown);
+
+	for (size_t i=0; i<Config::repeats_on_sdo_timeout+1; ++i) {
+		try {
+			std::vector<uint8_t> data = m_core.sdo.upload(m_node_id, index, subindex);
+			return Value(type, data);
+		} catch (const sdo_error& error) {
+			last_error = error;
+			if (i<Config::repeats_on_sdo_timeout) {
+				DEBUG_LOG("[Device::get_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
+					<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
+			}
+		}
+	}
+	
+	throw sdo_error(sdo_error::type::response_timeout, "Device::get_entry_via_sdo() failed after "
+		+std::to_string(Config::repeats_on_sdo_timeout+1)+" repeats. Last error: "+std::string(last_error.what()));
+
+}
+
+void Device::set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& value) {
+
+	sdo_error last_error(sdo_error::type::unknown);
+
+	for (size_t i=0; i<Config::repeats_on_sdo_timeout+1; ++i) {
+		try {
+			const auto& bytes = value.get_bytes();
+			m_core.sdo.download(m_node_id,index,subindex,bytes.size(),bytes);
+			return;
+		} catch (const sdo_error& error) {
+			last_error = error;
+			if (i<Config::repeats_on_sdo_timeout) {
+				DEBUG_LOG("[Device::set_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
+					<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
+			}
+		}
+	}
+
+	throw sdo_error(sdo_error::type::response_timeout, "Device::set_entry_via_sdo() failed after "
+		+std::to_string(Config::repeats_on_sdo_timeout+1)+" repeats. Last error: "+std::string(last_error.what()));
+
 }
 
 void Device::load_dictionary_from_library() {

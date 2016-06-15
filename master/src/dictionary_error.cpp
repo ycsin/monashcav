@@ -51,9 +51,6 @@ namespace kaco {
 			case type::wrong_type:
 				m_message = "Data type does not match to the dictionary entry \""+entry_name+"\".";
 				break;
-			case type::no_array:
-				m_message = "Dictionary entry \""+entry_name+"\" is no array, but you specified an array index.";
-				break;
 			case type::mapping_size:
 				m_message = "Invalid mapping size.";
 				break;

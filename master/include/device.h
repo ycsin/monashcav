@@ -71,7 +71,7 @@ namespace kaco {
 	///
 	///     (2) Methods which access dictionary entries
 	///
-	///     (3) Methods which only access Core
+	///     (3) Methods which only access Core (private)
 	///
 	///    Methods in (3) as well as get_node_id() are always thread-safe.
 	///
@@ -80,6 +80,8 @@ namespace kaco {
 	///
 	///    Methods in (1) should be run in sequence before accessing
 	///    dictionary entries (group 2).
+	///
+	/// \todo Add add_entry() method.
 	class Device {
 
 	public:
@@ -116,6 +118,7 @@ namespace kaco {
 
 		/// Tries to load the most specific EDS file available in KaCanOpen's internal EDS library.
 		/// This is either device specific, CiA profile specific, or mandatory CiA 301.
+		
 		/// \throws canopen_error if mandatory CiA 301 dictionary entries cannot be loaded.
 		void load_dictionary_from_library();
 
@@ -150,40 +153,71 @@ namespace kaco {
 		/// \todo Overload with index+subindex.
 		bool has_entry(const std::string& entry_name);
 
+		/// Returns true if the entry is contained in the device dictionary.
+		/// \param index Index of the dictionary entry.
+		/// \param subindex Sub-index of the dictionary entry. Default is zero.
+		/// \return True if entry_name is contained in the device dictionary.
+		bool has_entry(const uint16_t index, const uint8_t subindex = 0);
+
 		/// Returns the type of a dictionary entry identified by name as it is defined in the local dictionary.
 		/// \param entry_name Name of the dictionary entry
 		/// \throws dictionary_error if there is no entry with the given name
-		/// \todo Missing array_index argument.
 		/// \todo Overload with index+subindex.
 		Type get_entry_type(const std::string& entry_name);
+
+		/// Returns the type of a dictionary entry identified by name as it is defined in the local dictionary.
+		/// \param index Index of the dictionary entry.
+		/// \param subindex Sub-index of the dictionary entry. Default is zero.
+		/// \throws dictionary_error if there is no entry with the given name
+		Type get_entry_type(const uint16_t index, const uint8_t subindex = 0);
 
 		/// Gets the value of a dictionary entry by name internally.
 		/// If there is no cached value or the entry is configured to send an SDO on request, the new value is fetched from the device via SDO.
 		/// Otherwise it returns the cached value. This makes sense, if a Reveive PDO is configured on the corresponding entry.
 		/// \param entry_name Name of the dictionary entry
-		/// \param array_index Optional array index. Use 0 if the entry is no array.
 		/// \param access_method Method of value retrival
-		/// \throws dictionary_error if there is no entry with the given name, or array_index!=0 for a non-array entry.
+		/// \throws dictionary_error if there is no entry with the given name.
 		/// \throws sdo_error
 		/// \todo check access_type from dictionary
-		/// \todo Overload with index+subindex.
-		const Value& get_entry(const std::string& entry_name, uint8_t array_index=0, ReadAccessMethod access_method = ReadAccessMethod::use_default);
+		const Value& get_entry(const std::string& entry_name, const ReadAccessMethod access_method = ReadAccessMethod::use_default);
+
+		/// Gets the value of a dictionary entry by name internally.
+		/// If there is no cached value or the entry is configured to send an SDO on request, the new value is fetched from the device via SDO.
+		/// Otherwise it returns the cached value. This makes sense, if a Reveive PDO is configured on the corresponding entry.
+		/// \param index Index of the dictionary entry.
+		/// \param subindex Sub-index of the dictionary entry. Default is zero.
+		/// \param access_method Method of value retrival
+		/// \throws dictionary_error if there is no entry with the given name.
+		/// \throws sdo_error
+		/// \todo check access_type from dictionary
+		const Value& get_entry(const uint16_t index, const uint8_t subindex = 0, const ReadAccessMethod access_method = ReadAccessMethod::use_default);
 
 		/// Sets the value of a dictionary entry by name internally.
 		/// If the entry is configured to send an SDO on update, the new value is also sent to the device via SDO.
 		/// If a PDO is configured on the corresponding entry, it will from now on use the new value stored internally.
 		/// \param entry_name Name of the dictionary entry
 		/// \param value The value to write, wrapped in a Value object. The Value class has implicit cast constructors for all supported data types.
-		/// \param array_index Optional array index. Use 0 if the entry is no array.
 		/// \param access_method How, where and when to write the value.
-		/// \throws dictionary_error if there is no entry with the given name, or array_index!=0 for a non-array entry.
+		/// \throws dictionary_error if there is no entry with the given name.
 		/// \throws sdo_error
 		/// \todo check access_type from dictionary
-		/// \todo Overload with index+subindex.
-		void set_entry(const std::string& entry_name, const Value& value, uint8_t array_index=0, WriteAccessMethod access_method = WriteAccessMethod::use_default);
+		void set_entry(const std::string& entry_name, const Value& value, const WriteAccessMethod access_method = WriteAccessMethod::use_default);
+
+		/// Sets the value of a dictionary entry by name internally.
+		/// If the entry is configured to send an SDO on update, the new value is also sent to the device via SDO.
+		/// If a PDO is configured on the corresponding entry, it will from now on use the new value stored internally.
+		/// \param index Index of the dictionary entry.
+		/// \param subindex Sub-index of the dictionary entry.
+		/// \param value The value to write, wrapped in a Value object. The Value class has implicit cast constructors for all supported data types.
+		/// \param access_method How, where and when to write the value.
+		/// \throws dictionary_error if there is no entry with the given name.
+		/// \throws sdo_error
+		/// \todo check access_type from dictionary
+		void set_entry(const uint16_t index, const uint8_t subindex, const Value& value, const WriteAccessMethod access_method = WriteAccessMethod::use_default);
 
 		/// Returns the CiA profile number
 		/// \throws sdo_error
+		/// \todo Make this an operation?
 		uint16_t get_device_profile_number();
 
 		/// Executes a convenience operation. It must exist due to a previous
@@ -203,9 +237,9 @@ namespace kaco {
 		/// \param cob_id COB-ID of the PDO
 		/// \param entry_name Name of the dictionary entry
 		/// \param offset index of the first mapped byte in the PDO message
-		/// \param array_index Optional array index. Use 0 if the entry is no array.
-		/// \throws dictionary_error if there is no entry with the given name, or array_index!=0 for a non-array entry.
-		void add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_name, uint8_t offset, uint8_t array_index=0);
+		/// \throws dictionary_error if there is no entry with the given name.
+		/// \todo Add index/subindex overload?
+		void add_receive_pdo_mapping(uint16_t cob_id, const std::string& entry_name, uint8_t offset);
 
 		/// Adds a transmit PDO mapping. This means values from the dictionary cache are sent to the device.
 		///
@@ -236,6 +270,8 @@ namespace kaco {
 
 		///@}
 
+	private:
+
 		/// \name (3) Methods which only access Core
 		///@{
 
@@ -260,8 +296,6 @@ namespace kaco {
 		void set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& value);
 
 		///@}
-
-	private:
 
 		void pdo_received_callback(const ReceivePDOMapping& mapping, std::vector<uint8_t> data);
 
