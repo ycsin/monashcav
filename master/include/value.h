@@ -129,54 +129,71 @@ namespace kaco {
 		Value(const std::vector<uint8_t>& value);
 
 		/// Creates a value given a type and the byte representation (little-endian) in a vector.
+		/// \throws canopen_error if type is invalid or data vector has wrong size.
 		Value(Type type_, const std::vector<uint8_t>& data);
 
 		/// Returns the byte representation (little-endian) as a vector.
+		/// \throws canopen_error if value is invalid.
 		std::vector<uint8_t> get_bytes() const;
 
 		/// Casts uint8 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator uint8_t() const;
 
 		/// Casts uint16 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator uint16_t() const;
 
 		/// Casts uint32 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator uint32_t() const;
 
 		/// Casts uint64 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator uint64_t() const;
 
 		/// Casts int8 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator int8_t() const;
 
 		/// Casts int16 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator int16_t() const;
 
 		/// Casts int32 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator int32_t() const;
 
 		/// Casts int64 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator int64_t() const;
 
 		/// Casts real32 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator float() const;
 
 		/// Casts real64 to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator double() const;
 
 		/// Casts boolean to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator bool() const;
 
 		/// Casts string to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator std::string() const;
 
 		/// Casts octet_string to C++ type.
+		/// \throws canopen_error if types don't match.
 		operator std::vector<uint8_t>() const;
 
 		/// Compares equal
+		/// \throws canopen_error if types don't match.
 		bool operator==(const Value& other) const;
 
 		/// Compares not equal
+		/// \throws canopen_error if types don't match.
 		bool operator!=(const Value& other) const;
 
 		std::string to_string() const;

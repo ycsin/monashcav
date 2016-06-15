@@ -31,8 +31,10 @@
  
 #include "value.h"
 #include "logger.h"
+#include "canopen_error.h"
 
 #include <sstream>
+#include <string>
 
 namespace kaco {
 
@@ -130,11 +132,8 @@ Value::Value(Type type_, const std::vector<uint8_t>& data) {
 		// strings and octet strings have variable size
 		const uint8_t type_size = Utils::get_type_size(type);
 		if (data.size() != type_size) {
-			ERROR("[Value constructor] Wrong byte vector size.");
-			DUMP(data.size());
-			DUMP(type_size);
-			DUMP(Utils::type_to_string(type));
-			abort();
+			throw canopen_error("[Value constructor] Wrong byte vector size: data.size()="+std::to_string(data.size())
+				+" type_size="+std::to_string(type_size)+" type="+Utils::type_to_string(type));
 		}
 	}
 
@@ -212,9 +211,8 @@ Value::Value(Type type_, const std::vector<uint8_t>& data) {
 			break;
 		}
 
-		default: {
-			ERROR("[Value constructor] Unknown data type.");
-			break;
+		case Type::invalid: {
+			throw canopen_error("[Value constructor] Can't construct invalid value with this constructor.");
 		}
 
 	}
@@ -330,9 +328,8 @@ std::vector<uint8_t> Value::get_bytes() const {
 			break;
 		}
 
-		default: {
-			ERROR("[Value::get_bytes] Unknown type.")
-			break;
+		case Type::invalid: {
+			throw canopen_error("[Value::get_bytes] Can't get bytes of invalid type.");
 		}
 
 	}
@@ -346,14 +343,7 @@ bool Value::operator==(const Value& other) const {
 	DEBUG(
 
 		if (type != other.type) {
-			ERROR("[Value::operator==] Comparing values of different type.");
-			// abort();
-			return false;
-		}
-
-		if (type == Type::invalid) {
-			ERROR("[Value::operator==] Comparing invalid value.");
-			return false;
+			throw canopen_error("[Value::operator==] Comparing values of different type: "+Utils::type_to_string(type)+" != "+Utils::type_to_string(other.type)+".");
 		}
 
 	)
@@ -413,9 +403,8 @@ bool Value::operator==(const Value& other) const {
 			return to_string() == other.to_string();
 		}
 
-		default: {
-			ERROR("[Value::operator==] Comparing values of unknown type.")
-			return false;
+		case Type::invalid: {
+			throw canopen_error("[Value::operator==] Comparing invalid type.");
 		}
 
 	}
@@ -441,7 +430,7 @@ std::string Value::to_string() const {
 #define CO_VALUE_TYPE_CAST_OP(mtypeout, mtypein) \
 	Value::operator mtypeout() const { \
 		if (type != Type::mtypein ) { \
-			WARN("[Value cast operator] Illegal conversion from "<<Utils::type_to_string(type)<<" to " #mtypein " !") \
+			throw canopen_error("[Value cast operator] Illegal conversion from "+Utils::type_to_string(type)+" to " #mtypein "."); \
 		} \
 		return mtypein; \
 	}

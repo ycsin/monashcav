@@ -30,12 +30,13 @@
  */
  
 #include "entry.h"
-#include "logger.h"
+#include "canopen_error.h"
 
 #include <cassert>
 #include <future>
 #include <iomanip>
 #include <memory>
+#include <iostream>
 
 namespace kaco {
 
@@ -62,9 +63,7 @@ Entry::Entry(const uint16_t _index, const uint8_t _subindex, const std::string& 
 void Entry::set_value(const Value& value) {
 
 	if (value.type != type) {
-		// TODO: exception!
-		ERROR("[Entry::set_value] You passed a value of wrong type.");
-		return;
+		throw canopen_error("[Entry::set_value] You passed a value of wrong type: "+Utils::type_to_string(value.type)+" != "+Utils::type_to_string(type)+".");
 	}
 
 	bool value_changed = false;
@@ -93,17 +92,11 @@ void Entry::set_value(const Value& value) {
 }
 
 const Value& Entry::get_value() const {
-
 	std::lock_guard<std::recursive_mutex> lock(*m_read_write_mutex);
-
-	if (valid()) {
-		return m_value;
-	} else {
-		// TODO: exception!
-		ERROR("[Entry::get_value] Value not valid.");
-		return m_dummy_value;
+	if (!valid()) {
+		throw canopen_error("[Entry::get_value] Value is not valid.");
 	}
-
+	return m_value;
 }
 
 bool Entry::valid() const {

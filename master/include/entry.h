@@ -83,10 +83,12 @@ namespace kaco {
 		Entry& operator=(Entry&& other) = default;
 
 		/// Sets the value.
+		/// \throws canopen_error if types don't match.
 		/// \remark thread-safe
 		void set_value(const Value& value);
 
 		/// Returns the value.
+		/// \throws canopen_error if value isn't valid.
 		/// \remark thread-safe
 		const Value& get_value() const;
 
