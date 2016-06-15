@@ -302,6 +302,9 @@ namespace kaco {
 
 		///@}
 
+		/// Loads most specific CiA standard profile.
+		void load_cia_dictionary();
+
 		void pdo_received_callback(const ReceivePDOMapping& mapping, std::vector<uint8_t> data);
 
 		static const bool debug = false;

@@ -408,6 +408,7 @@ bool Value::operator==(const Value& other) const {
 		}
 
 	}
+	return false;
 }
 
 bool Value::operator!=(const Value& other) const {

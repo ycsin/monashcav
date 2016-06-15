@@ -272,7 +272,8 @@ void Device::pdo_received_callback(const ReceivePDOMapping& mapping, std::vector
 }
 
 uint16_t Device::get_device_profile_number() {
-	uint32_t device_type = get_entry("Device type");
+	// Using the address here because this makes read_dictionary_from_eds() shorter...
+	uint32_t device_type = get_entry(0x1000); // Device type
 	return (device_type & 0xFFFF);
 }
 
@@ -327,14 +328,12 @@ void Device::load_dictionary_from_library() {
 		throw canopen_error("[Device::load_dictionary_from_library] EDS library is not available.");
 	}
 
-	uint16_t profile = get_device_profile_number();
-
 	DEBUG_LOG("Device::load_dictionary_from_library()...");
 
 	// First, we try to load manufacturer specific entries.
 
 	Config::eds_library_clear_dictionary = true;
-	bool success = m_eds_library.load_manufacturer_eds(*this);
+	const bool success = m_eds_library.load_manufacturer_eds(*this);
 	Config::eds_library_clear_dictionary = false;
 	
 	if (success) {
@@ -343,36 +342,37 @@ void Device::load_dictionary_from_library() {
 		Config::eds_reader_just_add_mappings = true;
 	} else {
 		DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": There is no manufacturer-specific EDS file available. Going on with the default dictionary...");
-		Config::eds_reader_just_add_mappings = false;
+		Config::eds_reader_just_add_mappings = false; // should be already false...
 	}
 
 	// Load entries like they are defined in the CiA CANopen standard documents...
+	// Either just the names are added or the whole dictionary depending on Config::eds_reader_just_add_mappings
+	load_cia_dictionary();
+	Config::eds_reader_just_add_mappings = false;
 
+}
+
+void Device::load_cia_dictionary() {
 	Config::eds_reader_mark_entries_as_generic = true;
-	Config::eds_library_clear_dictionary = false;
-	success = m_eds_library.load_default_eds(profile);
-
-	if (success) {
+	const uint16_t profile = get_device_profile_number();
+	if (m_eds_library.load_default_eds(profile)) {
 		DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded profile-specific dictionary: " << m_eds_library.get_most_recent_eds_file_path());
 	} else {
-		Config::eds_library_clear_dictionary = false;
-		success = m_eds_library.load_mandatory_entries();
-		if (success) {
+		Config::eds_library_clear_dictionary = false; // should be already false...
+		if (m_eds_library.load_mandatory_entries()) {
 			DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded mandatory entries: " << m_eds_library.get_most_recent_eds_file_path());
 		} else {
 			throw canopen_error("Could not load mandatory CiA 301 dictionary entries for device with ID "+std::to_string(m_node_id)+". This can break various parts of KaCanOpen!");
 		}
 	}
-
 	Config::eds_reader_mark_entries_as_generic = false;
-
 }
 
 void Device::load_dictionary_from_eds(const std::string& path) {
 
 	m_eds_library.reset_dictionary();
-	Config::eds_reader_just_add_mappings = false;
-	Config::eds_reader_mark_entries_as_generic = false;
+	Config::eds_reader_just_add_mappings = false; // should be already false...
+	Config::eds_reader_mark_entries_as_generic = false; // should be already false...
 	EDSReader reader(m_dictionary, m_name_to_address);
 
 	if (!reader.load_file(path)) {
@@ -381,6 +381,19 @@ void Device::load_dictionary_from_eds(const std::string& path) {
 
 	if (!reader.import_entries()) {
 		throw canopen_error("[EDSLibrary::load_dictionary_from_eds] Importing entries failed for file "+path);
+	}
+
+	// Load generic names from the standard CiA profiles on top of the existing dictionary.
+	if (m_eds_library.ready()) {
+		// Wo know nothing about the EDS... No mandatory entries here. At least 0x1000 is required for load_cia_dictionary():
+		if (!has_entry(0x1000)) {
+			add_entry(0x1000,0,"device_type",Type::uint32,AccessType::read_only);
+		}
+		Config::eds_reader_just_add_mappings = true;
+		load_cia_dictionary();
+		Config::eds_reader_just_add_mappings = false;
+	} else {
+		WARN("[Device::load_dictionary_from_eds] Cannot load generic entry names because EDS library is not available.");
 	}
 
 }
