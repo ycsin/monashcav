@@ -118,16 +118,9 @@ int main(int argc, char* argv[]) {
 
 			// TODO: target_position should be mapped to a PDO
 
-			// HACK
-			if (static_cast<std::string>(device.get_entry("manufacturer_device_name")).substr(0, 11) == "SCHUNK ERBo") {
-				PRINT("Creating special Schunk JointStatePublisher");
-				auto jspub = std::make_shared<kaco::JointStatePublisher>(device, 0, 350000, "Position actual value in user unit");
-				bridge.add_publisher(jspub, loop_rate);
-			} else {
-				auto jspub = std::make_shared<kaco::JointStatePublisher>(device, 0, 350000);
-				bridge.add_publisher(jspub, loop_rate);
-			}
-
+			auto jspub = std::make_shared<kaco::JointStatePublisher>(device, 0, 350000);
+			bridge.add_publisher(jspub, loop_rate);
+			
 			auto jssub = std::make_shared<kaco::JointStateSubscriber>(device, 0, 350000);
 			bridge.add_subscriber(jssub);
 
