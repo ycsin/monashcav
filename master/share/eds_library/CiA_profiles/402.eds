@@ -1272,21 +1272,21 @@ AccessType=ro
 PDOMapping=0
 
 [6062]
-ParameterName=Position Demand Value in User Units
+ParameterName=Position Demand Value
 ObjectType=0x07
 DataType=0x0004
 AccessType=ro
 PDOMapping=0
 
 [6063]
-ParameterName=Position Actual Value
+ParameterName=Position Actual Value*
 ObjectType=0x07
 DataType=0x0004
 AccessType=ro
 PDOMapping=0
 
 [6064]
-ParameterName=Position Actual Value in User Unit
+ParameterName=Position Actual Value
 ObjectType=0x07
 DataType=0x0004
 AccessType=ro
@@ -2224,7 +2224,7 @@ AccessType=rw
 PDOMapping=0
 
 [60FC]
-ParameterName=Position Demand Value
+ParameterName=Position Demand Value*
 ObjectType=0x07
 DataType=0x0004
 AccessType=ro
