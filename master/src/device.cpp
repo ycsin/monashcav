@@ -288,13 +288,14 @@ Value Device::get_entry_via_sdo(uint32_t index, uint8_t subindex, Type type) {
 		} catch (const sdo_error& error) {
 			last_error = error;
 			if (i<Config::repeats_on_sdo_timeout) {
-				DEBUG_LOG("[Device::get_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
+				DEBUG_LOG("[Device::get_entry_via_sdo] device " << std::to_string(m_node_id) << " " << error.what() <<" -> Repetition "<<std::to_string(i+1)
 					<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
+				std::this_thread::sleep_for(std::chrono::milliseconds(kaco::Config::sdo_response_timeout_ms));
 			}
 		}
 	}
 	
-	throw sdo_error(sdo_error::type::response_timeout, "Device::get_entry_via_sdo() failed after "
+	throw sdo_error(sdo_error::type::response_timeout, "Device::get_entry_via_sdo() device " + std::to_string(m_node_id) + " failed after "
 		+std::to_string(Config::repeats_on_sdo_timeout+1)+" repeats. Last error: "+std::string(last_error.what()));
 
 }
@@ -311,13 +312,14 @@ void Device::set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& va
 		} catch (const sdo_error& error) {
 			last_error = error;
 			if (i<Config::repeats_on_sdo_timeout) {
-				DEBUG_LOG("[Device::set_entry_via_sdo] "<<error.what()<<" -> Repetition "<<std::to_string(i+1)
+				DEBUG_LOG("[Device::set_entry_via_sdo] device " << std::to_string(m_node_id) << " " <<  error.what() << " -> Repetition "<<std::to_string(i+1)
 					<<" of "<<std::to_string(Config::repeats_on_sdo_timeout+1)<<".");
+				std::this_thread::sleep_for(std::chrono::milliseconds(kaco::Config::sdo_response_timeout_ms));
 			}
 		}
 	}
 
-	throw sdo_error(sdo_error::type::response_timeout, "Device::set_entry_via_sdo() failed after "
+	throw sdo_error(sdo_error::type::response_timeout, "Device::set_entry_via_sdo() device " + std::to_string(m_node_id) + " failed after "
 		+std::to_string(Config::repeats_on_sdo_timeout+1)+" repeats. Last error: "+std::string(last_error.what()));
 
 }
