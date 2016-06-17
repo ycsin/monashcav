@@ -154,12 +154,12 @@ namespace kaco {
 		/// This is set to true, if the entry has been created through a default CiA EDS file.
 		/// This means that it's not guaranteed that the entry actually exists in the current device.
 		/// For manually added entries and entries from manufacturer-specific EDS files, this is set to false.
-		bool is_generic;
+		bool is_generic = false;
 
 	private:
 
 		Value m_value;
-		bool m_valid;
+		bool m_valid = false;
 		Value m_dummy_value;
 
 		std::vector<ValueChangedCallback> m_value_changed_callbacks;
