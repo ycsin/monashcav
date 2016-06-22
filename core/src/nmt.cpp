@@ -111,8 +111,8 @@ void NMT::process_incoming_message(const Message& message) {
 			}
 			// TODO: this should be device_alive callback
 			{
-				std::lock_guard<std::mutex> scoped_lock(m_new_device_callbacks_mutex);
-				for (const auto& callback : m_new_device_callbacks) {
+				std::lock_guard<std::mutex> scoped_lock(m_device_alive_callbacks_mutex);
+				for (const auto& callback : m_device_alive_callbacks) {
 					DEBUG_LOG("Calling new device callback (async)");
 					// The future returned by std::async has to be stored,
 					// otherwise the immediately called future destructor
@@ -178,10 +178,13 @@ void NMT::process_incoming_message(const Message& message) {
 
 }
 
-void NMT::register_new_device_callback(const NewDeviceCallback& callback) {
-	std::lock_guard<std::mutex> scoped_lock(m_new_device_callbacks_mutex);
-	m_new_device_callbacks.push_back(callback);
+void NMT::register_device_alive_callback(const DeviceAliveCallback& callback) {
+	std::lock_guard<std::mutex> scoped_lock(m_device_alive_callbacks_mutex);
+	m_device_alive_callbacks.push_back(callback);
 }
 
+void NMT::register_new_device_callback(const NewDeviceCallback& callback) {
+	register_device_alive_callback(callback);
+}
 
 } // end namespace kaco

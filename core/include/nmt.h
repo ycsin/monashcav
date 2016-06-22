@@ -51,10 +51,14 @@ namespace kaco {
 
 	public:
 		
-		/// Type of a new device callback function
-		/// Important: Never call register_new_device_callback()
+		/// Type of a device alive callback function
+		/// Important: Never call register_device_alive_callback()
 		///   from within (-> deadlock)!
-		using NewDeviceCallback = std::function< void(const uint8_t node_id) >;
+		using DeviceAliveCallback = std::function< void(const uint8_t node_id) >;
+		
+		/// Type of a new device callback function
+		/// \deprecated
+		using NewDeviceCallback = DeviceAliveCallback;
 
 		/// NMT commands
 		enum class Command : uint8_t {
@@ -96,10 +100,16 @@ namespace kaco {
 		/// \remark thread-safe
 		void discover_nodes();
 
-		/// Registers a callback which will be called when a new slave device is discovered.
-		/// \todo rename to device_alive_callback
+		/// Registers a callback which will be called when a slave sends
+		/// it's state via NMT and the state indicates that the device
+		/// is alive. This can be uses as a "new device" callback.
 		/// \remark thread-safe
-		void register_new_device_callback(const NewDeviceCallback& callback);	
+		void register_device_alive_callback(const DeviceAliveCallback& callback);
+
+		/// Registers a callback which will be called when a new slave device is discovered.
+		/// \remark thread-safe
+		/// \deprecated
+		void register_new_device_callback(const NewDeviceCallback& callback);
 
 	private:
 
@@ -107,8 +117,8 @@ namespace kaco {
 		Core& m_core;
 
 		/// \todo rename to device_alive_callback
-		std::vector<NewDeviceCallback> m_new_device_callbacks;
-		mutable std::mutex m_new_device_callbacks_mutex;
+		std::vector<NewDeviceCallback> m_device_alive_callbacks;
+		mutable std::mutex m_device_alive_callbacks_mutex;
 
 		static const bool m_cleanup_futures = true;
 		std::forward_list<std::future<void>> m_callback_futures; // forward_list because of remove_if

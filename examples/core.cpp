@@ -84,9 +84,9 @@ int main() {
 	// This will be set to true by the callback below.
 	bool found_node = false;
 
-	std::cout << "Registering a callback which is called when a new device is detected via NMT..." << std::endl;
-	core.nmt.register_new_device_callback([&] (const uint8_t new_node_id) {
-		std::cout << "New device! ID = " << (unsigned) new_node_id << std::endl;
+	std::cout << "Registering a callback which is called when a device is detected via NMT..." << std::endl;
+	core.nmt.register_device_alive_callback([&] (const uint8_t new_node_id) {
+		std::cout << "Device says it's alive! ID = " << (unsigned) new_node_id << std::endl;
 		// Check if this is the node we are looking for.
 		if (new_node_id == node_id) {
 			found_node = true;
