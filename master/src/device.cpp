@@ -324,7 +324,7 @@ void Device::set_entry_via_sdo(uint32_t index, uint8_t subindex, const Value& va
 
 }
 
-void Device::load_dictionary_from_library() {
+std::string Device::load_dictionary_from_library() {
 
 	if (!m_eds_library.ready()) {
 		throw canopen_error("[Device::load_dictionary_from_library] EDS library is not available.");
@@ -351,6 +351,8 @@ void Device::load_dictionary_from_library() {
 	// Either just the names are added or the whole dictionary depending on Config::eds_reader_just_add_mappings
 	load_cia_dictionary();
 	Config::eds_reader_just_add_mappings = false;
+
+	return m_eds_library.get_most_recent_eds_file_path();
 
 }
 
