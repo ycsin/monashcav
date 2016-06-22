@@ -85,7 +85,8 @@ bool Core::start(const std::string busname, unsigned baudrate) {
 
 	assert(!m_running);
 
-	CANBoard board = {busname.c_str(), std::to_string(baudrate).c_str()} ;
+	const std::string baudrate_string = std::to_string(baudrate);
+	CANBoard board = {busname.c_str(), baudrate_string.c_str()};
 	m_handle = canOpen_driver(&board);
 
 	if(!m_handle) {
