@@ -331,6 +331,7 @@ std::string Device::load_dictionary_from_library() {
 	}
 
 	DEBUG_LOG("Device::load_dictionary_from_library()...");
+	std::string eds_path = "";
 
 	// First, we try to load manufacturer specific entries.
 
@@ -341,6 +342,7 @@ std::string Device::load_dictionary_from_library() {
 	if (success) {
 		DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": Successfully loaded manufacturer-specific dictionary: " << m_eds_library.get_most_recent_eds_file_path());
 		DEBUG_LOG("[Device::load_dictionary_from_library] Now we will add additional mappings from standard conformal entry names to the entries...");
+		eds_path = m_eds_library.get_most_recent_eds_file_path();
 		Config::eds_reader_just_add_mappings = true;
 	} else {
 		DEBUG_LOG("[Device::load_dictionary_from_library] Device "<<std::to_string(m_node_id)<<": There is no manufacturer-specific EDS file available. Going on with the default dictionary...");
@@ -350,9 +352,13 @@ std::string Device::load_dictionary_from_library() {
 	// Load entries like they are defined in the CiA CANopen standard documents...
 	// Either just the names are added or the whole dictionary depending on Config::eds_reader_just_add_mappings
 	load_cia_dictionary();
+	if (eds_path.empty()) {
+		// no manufacturer EDS...
+		eds_path = m_eds_library.get_most_recent_eds_file_path();
+	}
 	Config::eds_reader_just_add_mappings = false;
 
-	return m_eds_library.get_most_recent_eds_file_path();
+	return eds_path;
 
 }
 
