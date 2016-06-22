@@ -81,7 +81,7 @@ namespace kaco {
 		///                 "1M", "500K", "125K", "100K", "50K", "20K", "10K" and "5K".
 		/// \returns true if successful
 		/// \remark Core must not run yet.
-		bool start(const std::string busname, const std::string baudrate);
+		bool start(const std::string busname, const std::string& baudrate);
 		
 		/// Opens CAN driver and starts CAN message receive loop.
 		///	\param busname Name of the bus which will be passed to the CAN driver, e.g. slcan0

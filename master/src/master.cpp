@@ -48,7 +48,19 @@ Master::~Master() {
 	}
 }
 
-bool Master::start(const std::string busname, unsigned baudrate) {
+bool Master::start(const std::string busname, const std::string& baudrate) {
+	bool success = core.start(busname, baudrate);
+	if (!success) {
+		return false;
+	}
+	m_running = true;
+	//core.nmt.reset_all_nodes();
+	// TODO: let user do this explicitly?
+	core.nmt.discover_nodes();
+	return true;
+}
+
+bool Master::start(const std::string busname, const unsigned baudrate) {
 	bool success = core.start(busname, baudrate);
 	if (!success) {
 		return false;

@@ -81,7 +81,7 @@ Core::~Core() {
 	}
 }
 
-bool Core::start(const std::string busname, const std::string baudrate) {
+bool Core::start(const std::string busname, const std::string& baudrate) {
 
 	assert(!m_running);
 
