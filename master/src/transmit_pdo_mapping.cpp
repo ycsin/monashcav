@@ -62,7 +62,7 @@ TransmitPDOMapping::~TransmitPDOMapping() {
 void TransmitPDOMapping::send() const {
 
 	std::vector<uint8_t> data(8,0);
-	size_t max_byte=0;
+	size_t size=0;
 
 	DEBUG_LOG("[TransmitPDOMapping::send] Sending transmit PDO with cob_id 0x"<<std::hex<<cob_id);
 
@@ -84,11 +84,12 @@ void TransmitPDOMapping::send() const {
 			data[i] = bytes[count++];
 		}
 
-		max_byte = std::max(max_byte, mapping.offset+bytes.size());
+		size = std::max(size, mapping.offset+bytes.size());
 
 	}
 
-	data.resize(max_byte+1);
+	assert(size<=8 && "[TransmitPDOMapping::send] Malformed PDO mapping.");
+	data.resize(size);
 	m_core.pdo.send(cob_id, data);
 
 }
