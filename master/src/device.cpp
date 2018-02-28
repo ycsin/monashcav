@@ -233,9 +233,10 @@ void Device::add_transmit_pdo_mapping(uint16_t cob_id, const std::vector<Mapping
 			WARN("[Device::add_transmit_pdo_mapping] Repeat time is 0. This could overload the bus.");
 		}
 
-		pdo.transmitter = std::unique_ptr<std::thread>(new std::thread([&pdo, repeat_time](){
+		pdo.run_periodic_transmitter = true;
+		pdo.periodic_transmitter = std::unique_ptr<std::thread>(new std::thread([&pdo, repeat_time](){
 
-			while (true) {
+			while (pdo.run_periodic_transmitter) {
 				DEBUG_LOG("[Timer thread] Sending periodic PDO.");
 				pdo.send();
 				std::this_thread::sleep_for(repeat_time);
