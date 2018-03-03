@@ -53,8 +53,9 @@ TransmitPDOMapping::TransmitPDOMapping(Core& core, const std::unordered_map<Addr
 	}
 
 TransmitPDOMapping::~TransmitPDOMapping() {
-	if (transmitter) {
-		transmitter->detach();
+	if (periodic_transmitter) {
+		run_periodic_transmitter = false;
+		periodic_transmitter->join();
 	}
 }
 

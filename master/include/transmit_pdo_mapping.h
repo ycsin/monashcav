@@ -90,7 +90,9 @@ namespace kaco {
 
 		/// The transmitter thread
 		/// \note This is a unique pointer because transmitter is optional.
-		std::unique_ptr<std::thread> transmitter;
+		std::unique_ptr<std::thread> periodic_transmitter{nullptr};
+
+		bool run_periodic_transmitter{false};
 
 		/// Sends the PDO
 		void send() const;
