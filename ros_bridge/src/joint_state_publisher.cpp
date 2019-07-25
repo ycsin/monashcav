@@ -68,7 +68,7 @@ JointStatePublisher::JointStatePublisher(Device& device, int32_t position_0_degr
 
 	if (m_topic_name.empty()) {
 		uint8_t node_id = device.get_node_id();
-		m_topic_name = "device" + std::to_string(node_id) + "/get_joint_state";
+		m_topic_name = "device" + std::to_string(node_id) + "/get_steering_state";
 	}
 
 }

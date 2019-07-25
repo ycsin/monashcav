@@ -29,23 +29,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
  
-#include "joint_state_subscriber.h"
+#include "steering_angle_publisher.h"
 #include "utils.h"
 #include "logger.h"
 #include "profiles.h"
 #include "sdo_error.h"
+#include "steering_config.h"
 
 #include "ros/ros.h"
+#include "kacanopen/Steer.h"
 
 #include <string>
+#include <stdexcept>
 
 namespace kaco {
 
-JointStateSubscriber::JointStateSubscriber(Device& device, int32_t position_0_degree,
-	int32_t position_360_degree, std::string topic_name)
+SteeringAnglePublisher::SteeringAnglePublisher(Device& device, int32_t position_0_degree,
+	int32_t position_360_degree, const std::string& position_actual_field)
 	: m_device(device), m_position_0_degree(position_0_degree),
-		m_position_360_degree(position_360_degree), m_topic_name(topic_name),
-		m_initialized(false)
+		m_position_360_degree(position_360_degree), m_position_actual_field(position_actual_field), m_initialized(false)
 {
 
 	const uint16_t profile = device.get_device_profile_number();
@@ -62,54 +64,55 @@ JointStateSubscriber::JointStateSubscriber(Device& device, int32_t position_0_de
 		&& operation_mode != Profiles::constants.at(402).at("interpolated_position_mode")) {
 		throw std::runtime_error("[JointStatePublisher] Only position mode supported yet."
 			" Try device.set_entry(\"modes_of_operation\", device.get_constant(\"profile_position_mode\"));");
-	}
-
-	if (m_topic_name.empty()) {
-		uint8_t node_id = device.get_node_id();
-		m_topic_name = "device" + std::to_string(node_id) + "/set_steering_state";
+		return;
 	}
 
 }
 
-void JointStateSubscriber::advertise() {
+void SteeringAnglePublisher::advertise() {
 
 	assert(!m_topic_name.empty());
 	DEBUG_LOG("Advertising "<<m_topic_name);
 	ros::NodeHandle nh;
-	m_subscriber = nh.subscribe(m_topic_name, queue_size, &JointStateSubscriber::receive, this);
+	m_publisher = nh.advertise<kacanopen::Steer>(m_topic_name, queue_size);
 	m_initialized = true;
 
 }
 
-void JointStateSubscriber::receive(const sensor_msgs::JointState& msg) {
+void SteeringAnglePublisher::publish() {
 
 	try {
-	
-		assert(msg.position.size()>0);
-		const int32_t pos = rad_to_pos(msg.position[0]);
 
-		DEBUG_LOG("Received JointState message");
+		if (!m_initialized) {
+			throw std::runtime_error("[SteeringAnglePublisher] publish() called before advertise().");
+		}
+
+		kacanopen::Steer js;
+
+		const int32_t pos = m_device.get_entry(m_position_actual_field);
+		js.steering_angle = motor_to_steering_angle(pos);
+
+		DEBUG_LOG("Sending Steering Angle message");
 		DEBUG_DUMP(pos);
-		DEBUG_DUMP(msg.position[0]);
+		DEBUG_DUMP(js.steering_angle);
 
-		m_device.execute("set_target_position",pos);
-		
+		m_publisher.publish(js);
+
 	} catch (const sdo_error& error) {
 		// TODO: only catch timeouts?
-		ERROR("Exception in JointStateSubscriber::receive(): "<<error.what());
+		ERROR("Exception in SteeringAnglePublisher::publish(): "<<error.what());
 	}
 
 }
 
-int32_t JointStateSubscriber::rad_to_pos(double rad) const {
-
-	const double p = rad;
-	const double min = m_position_0_degree;
-	const double max = m_position_360_degree;
-	const double dist = max - min;
-	const double result = ((p/(2*pi()))*dist)+min;
-	return (int32_t) result;
-
+int32_t SteeringAnglePublisher::motor_to_steering_angle(int32_t pos) const {
+    const int32_t p = pos;
+    const int32_t min = m_position_0_degree;
+    const int32_t max = m_position_360_degree;
+    const int32_t dist = max - min;
+    const int32_t result = ((p - min) * 360 + (dist * GEAR_RATIO)/2) / (dist * GEAR_RATIO);
+    return result;
 }
 
 } // end namespace kaco
+

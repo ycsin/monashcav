@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Thomas Keh
+ * Copyright (c) 2019-2020, Yong Cong Sin
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,24 +28,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+#pragma once
 
-#include "global_config.h"
+#include <string>
+#include <cmath>
 
-// Set by CMake:
-// #define SDO_RESPONSE_TIMEOUT_MS ...
+/*
+ * Stepper motor to steering wheel gear ratio
+ */
 
-namespace kaco {
+#define GEAR_RATIO 4
 
-//	size_t Config::sdo_response_timeout_ms = SDO_RESPONSE_TIMEOUT_MS;
+/*
+ * Stepper motor config
+ */
 
-	size_t Config::sdo_response_timeout_ms = 200;
-		
-	size_t Config::repeats_on_sdo_timeout = 2;
+#define M_USTEP 51200
+#define M_0_DEG_STEP 0
+#define M_360_DEG_STEP M_USTEP
+#define M_RUN_CURRENT_PERCENT 100
+#define M_ACC_PROFILE 6*M_USTEP
+#define M_DEC_PROFILE 6*M_USTEP
+#define M_MAX_VELOCITY 3*M_USTEP
+#define M_HMT_ENABLE 128
+#define M_HMT_DISABLE 0
+#define M_FAULT_DISABLE_DRIVE 0
+#define M_FAULT_SLOW_DOWN_RAMP 1
 
-	bool Config::eds_reader_mark_entries_as_generic = false;
-	
-	bool Config::eds_reader_just_add_mappings = false;
+/*
+ * Stepper motor state
+ */
 
-	bool Config::eds_library_clear_dictionary = false;
+#define MOTOR_READY 0
+#define MOTOR_RUNNING 1
 
-} // end namespace kaco
+/*
+ * Stepper motor error code
+ */
+
+#define M_ERR_NONE 0
+#define M_ERR_REBOOTED 1
+#define M_ERR_CONNECTION_LOST 2

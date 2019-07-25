@@ -35,6 +35,8 @@
 
 #include <memory>
 
+#include "steering_config.h"
+
 namespace kaco {
 
 Master::Master() {
@@ -91,9 +93,12 @@ void Master::device_alive_callback(const uint8_t node_id) {
 		m_device_alive.set(node_id);
 		m_devices.emplace_back(new Device(core, node_id));
 	} else {
-		WARN("Device with node ID "<<node_id<<" already exists. Ignoring...");
+		//WARN("Device with node ID "<<node_id<<" already exists. Ignoring...");
+		WARN("Device with node ID "<<node_id<<" rebooted.");
+		WARN("Re-initiating...");
+		get_device(0).start();
+		get_device(0).execute("initialise_motor");
 	}
-	
 }
 
 

@@ -42,7 +42,7 @@ endif()
 # Compiler flags
 # TOD0: -std=c++14 will be obsolete when reverting to minimum CMake version 3.2 and
 #       using set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 14) again.
-project(kacanopen C CXX)
+project(monashcav C CXX)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra") # -Werror
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra") # -Werror
@@ -132,7 +132,17 @@ if (NOT(${NO_ROS}))
 		roscpp
 		std_msgs
 		sensor_msgs
-		# message_generation
+		message_generation
+	)
+
+	add_message_files(
+	  FILES
+	  Steer.msg
+	)
+
+	generate_messages(
+	  DEPENDENCIES
+	  std_msgs
 	)
 
 	catkin_package(
@@ -155,6 +165,7 @@ endif()
 include_directories(${CMAKE_CURRENT_LIST_DIR}/core/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/master/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/ros_bridge/include)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/src/ros/include)
 
 
 ### Installation ###
@@ -208,6 +219,7 @@ add_subdirectory(drivers_lgpl)
 add_subdirectory(drivers)
 add_subdirectory(core)
 add_subdirectory(master)
-add_subdirectory(examples)
+add_subdirectory(src)
+
 
 

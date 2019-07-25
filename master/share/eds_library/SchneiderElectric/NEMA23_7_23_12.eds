@@ -1,5 +1,5 @@
 [FileInfo]
-FileName=402.eds
+FileName=NEMA23_7_23_12.eds
 FileVersion=1
 FileRevision=1
 EDSVersion=4.0
@@ -4470,6 +4470,5 @@ DataType=0x0007
 AccessType=ro
 DefaultValue=0x000000AD
 PDOMapping=0
-
 
 

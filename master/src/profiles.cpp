@@ -31,6 +31,7 @@
 
 #include "profiles.h"
 #include "logger.h"
+#include "steering_config.h"
 
 namespace kaco {
 
@@ -39,11 +40,35 @@ namespace kaco {
 			(uint16_t) 402,
 			{
 				{
+					"initialise_motor",
+					[](Device& device,const Value&) -> Value {
+						device.set_entry("ucruncurrentpcnt_2204h", (uint8_t)M_RUN_CURRENT_PERCENT);
+						device.set_entry("profile_acceleration", (uint32_t)M_ACC_PROFILE);
+						device.set_entry("profile_deceleration", (uint32_t)M_DEC_PROFILE);
+						device.set_entry("profile_velocity", (uint32_t)M_MAX_VELOCITY);
+						device.set_entry("uchybriden_2701h", (uint8_t)M_HMT_ENABLE);
+						device.set_entry("modes_of_operation", device.get_constant("profile_position_mode"));
+						device.set_entry("sfault_reaction_opcode_605eh", (int16_t)M_FAULT_DISABLE_DRIVE);
+						device.set_entry("EmcpCbPreDefinedErrorField/Emcp_PreDefined_Error_Field_number_of_errors", (uint8_t)0);
+						device.set_entry("controlword", (uint16_t) 0x0006); // shutdown
+						device.set_entry("controlword", (uint16_t) 0x0007); // switch on
+						return Value(); // invalid value (return value not needed)
+					}
+				},
+				{
 					"enable_operation",
 					[](Device& device,const Value&) -> Value {
 						device.set_entry("controlword", (uint16_t) 0x0006); // shutdown
 						device.set_entry("controlword", (uint16_t) 0x0007); // switch on
 						device.set_entry("controlword", (uint16_t) 0x000F); // enable operation
+						return Value(); // invalid value (return value not needed)
+					}
+				},
+				{
+					"disable_operation",
+					[](Device& device,const Value&) -> Value {
+						device.set_entry("controlword", (uint16_t) 0x0006); // shutdown
+						device.set_entry("controlword", (uint16_t) 0x0007); // switch on
 						return Value(); // invalid value (return value not needed)
 					}
 				},
@@ -72,6 +97,17 @@ namespace kaco {
 					[](Device& device,const Value& target_position) -> Value {
 						DEBUG_LOG("Set target pos to "<<target_position);
 						device.set_entry("Target position", target_position);
+						device.execute("set_controlword_flag","controlword_pp_new_set_point");
+						device.execute("unset_controlword_flag","controlword_pp_new_set_point");
+						return Value();
+					}
+				},
+				{
+					"set_target_position_immediate",
+					[](Device& device,const Value& target_position) -> Value {
+						DEBUG_LOG("Set target pos to "<<target_position);
+						device.set_entry("Target position", target_position);
+						device.execute("set_controlword_flag","controlword_pp_change_set_immediately");
 						device.execute("set_controlword_flag","controlword_pp_new_set_point");
 						device.execute("unset_controlword_flag","controlword_pp_new_set_point");
 						return Value();
@@ -161,3 +197,4 @@ namespace kaco {
 	};
 
 } // end namespace kaco
+
