@@ -2,7 +2,7 @@
 [![drivers_lgpl Licence](https://img.shields.io/badge/drivers__lgpl%20licence-LGPL%202.1%2B-blue.svg)](https://opensource.org/licenses/LGPL-2.1)
 [![Build Status](https://api.travis-ci.org/KITmedical/kacanopen.svg?branch=master)](https://travis-ci.org/KITmedical/kacanopen)
 
-# KaCanOpen
+# KaCanOpen-
 
 KaCanOpen is an easy-to-use [CANopen](https://en.wikipedia.org/wiki/CANopen) stack, which consists of four parts:
 
