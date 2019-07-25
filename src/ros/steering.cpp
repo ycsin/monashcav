@@ -101,6 +101,8 @@ int main(int argc, char* argv[]) {
 		found = true;
 			
 		device.execute("initialise_motor");
+		device.setErrorCode(M_ERR_NONE);
+		device.setReady();
 		// TODO: target_position should be mapped to a PDO
 
 		auto jspub = std::make_shared<kaco::SteeringAnglePublisher>(device, M_0_DEG_STEP, M_360_DEG_STEP);

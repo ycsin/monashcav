@@ -98,6 +98,8 @@ void Master::device_alive_callback(const uint8_t node_id) {
 		WARN("Re-initiating...");
 		get_device(0).start();
 		get_device(0).execute("initialise_motor");
+		get_device(0).setErrorCode(M_ERR_REBOOTED);
+		get_device(0).setReady();
 	}
 }
 

@@ -101,6 +101,10 @@ void SteeringAnglePublisher::publish() {
 	} catch (const sdo_error& error) {
 		// TODO: only catch timeouts?
 		ERROR("Exception in SteeringAnglePublisher::publish(): "<<error.what());
+		ERROR("Connetion to stepper motor lost");
+		m_device.setErrorCode(M_ERR_CONNECTION_LOST);
+		m_device.setReady();
+		m_device.execute("initialise_motor");
 	}
 
 }

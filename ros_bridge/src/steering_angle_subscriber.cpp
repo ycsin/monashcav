@@ -83,18 +83,18 @@ void SteeringAngleSubscriber::receive(const kacanopen::Steer& msg) {
 	DEBUG_LOG("Received SteeringAngle message");
 	DEBUG_DUMP(pos);
 	DEBUG_DUMP(msg.steering_angle);
-	/*
-	if (!motor_enabled && msg.steering_angle <= 1080 && msg.steering_angle >= -1080) {
+	
+	if (m_device.getState() == MOTOR_READY && msg.steering_angle <= 1080 && msg.steering_angle >= -1080) {
 		m_device.execute("enable_operation");
-		motor_enabled = 1;
+		m_device.setRunning();
 		PRINT("Enabled operation, motor running");
 	} else if (msg.steering_angle > 1080 || msg.steering_angle < -1080) {
 		m_device.execute("disable_operation");
-		motor_enabled = 0;
+		m_device.setReady();
 		PRINT("Disabled operation, motor ready");
-	}*/
+	}
 
-	if (motor_enabled) {
+	if (m_device.getState() == MOTOR_RUNNING) {
 		try {
 			m_device.execute("set_target_position_immediate",pos);
 			

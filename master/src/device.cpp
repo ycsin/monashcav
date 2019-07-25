@@ -491,6 +491,25 @@ void Device::read_complete_dictionary() {
 	}
 }
 
+void Device::setRunning() {
+	m_state = 1;
+}
+
+void Device::setReady() {
+	m_state = 0;
+}
+
+bool Device::getState() {
+	return m_state;
+}
+
+void Device::setErrorCode(uint8_t err) {
+	m_err_code = err;
+}
+
+uint8_t Device::getErrorCode() {
+	return m_err_code;
+}
 
 const Value Device::m_dummy_value = Value();
 

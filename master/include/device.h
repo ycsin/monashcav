@@ -274,6 +274,25 @@ namespace kaco {
 		/// example be printed via print_dictionary().
 		void read_complete_dictionary();
 
+		/// Set the motor state to 'Running'.
+		/// Which means the motor should be in
+		/// 'Operation enabled' mode.
+		void setRunning();
+
+		/// Set the motor state to 'Ready'.
+		/// Which means the motor should be in
+		/// 'Switched on' mode.
+		void setReady();
+
+		/// Return the current motor state.
+		bool getState();
+
+		/// Set the error code of the motor.
+		void setErrorCode(uint8_t);
+
+		/// Return the error code of the motor.
+		uint8_t getErrorCode();
+
 		///@}
 
 	private:
@@ -312,6 +331,8 @@ namespace kaco {
 
 		Core& m_core;
 		uint8_t m_node_id;
+		bool m_state;
+		uint8_t m_err_code;
 
 		std::unordered_map<Address, Entry> m_dictionary;
 		std::unordered_map<std::string, Address> m_name_to_address;
