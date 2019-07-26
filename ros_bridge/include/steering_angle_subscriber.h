@@ -83,9 +83,6 @@ namespace kaco {
 		/// converts steering radiant to "Target position" value from CanOpen using m_position_0_degree and m_position_360_degree
 		int32_t steering_to_motor_pos(int32_t pos) const;
 
-		/// constant PI
-		static constexpr double pi() { return std::acos(-1); }
-
 		Device& m_device;
 		int32_t m_position_0_degree;
 		int32_t m_position_360_degree;
