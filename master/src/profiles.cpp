@@ -56,6 +56,13 @@ namespace kaco {
 					}
 				},
 				{
+					"enable_motor",
+					[](Device& device,const Value&) -> Value {
+						device.set_entry("controlword", (uint16_t) 0x000F); // enable operation
+						return Value(); // invalid value (return value not needed)
+					}
+				},
+				{
 					"enable_operation",
 					[](Device& device,const Value&) -> Value {
 						device.set_entry("controlword", (uint16_t) 0x0006); // shutdown
