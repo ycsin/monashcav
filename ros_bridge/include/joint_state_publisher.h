@@ -81,6 +81,9 @@ namespace kaco {
 		/// converts "position actiual value" from CanOpen to radiant using m_position_0_degree and m_position_360_degree
 		double pos_to_rad(int32_t pos) const;
 
+		/// constant PI
+		static constexpr double pi() { return std::acos(-1); }
+
 		Device& m_device;
 		int32_t m_position_0_degree;
 		int32_t m_position_360_degree;
