@@ -2,14 +2,14 @@
 FileName=NEMA23_7_23_12.eds
 FileVersion=1
 FileRevision=1
-EDSVersion=4.0
+EDSVersion=4.1
 Description=EDS for SEM USA LMDAA Nema23 CANopen Version V7.23.12
 CreationTime=11:52AM
 CreationDate=10-18-2018
 CreatedBy=Frank Servidone
-ModificationTime=11:52AM
-ModificationDate=10-18-2018
-ModifiedBy=Frank Servidone
+ModificationTime=12:35PM
+ModificationDate=07-26-2019
+ModifiedBy=Yong Cong Sin
 
 [DeviceInfo]
 VendorName=Schneider Electric Motion USA
@@ -1758,7 +1758,7 @@ DefaultValue=0xFFFEFFC8
 PDOMapping=0
 
 [5303sub2]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5303h2
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1766,7 +1766,7 @@ DefaultValue=
 PDOMapping=0
 
 [5303sub3]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5303h3
 ObjectType=0x7
 DataType=0x0006
 AccessType=rw
@@ -1774,7 +1774,7 @@ DefaultValue=
 PDOMapping=0
 
 [5303sub4]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5303h4
 ObjectType=0x7
 DataType=0x0007
 AccessType=rw
@@ -1782,7 +1782,7 @@ DefaultValue=
 PDOMapping=0
 
 [5303sub5]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5303h5
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1819,7 +1819,7 @@ DefaultValue=0x13
 PDOMapping=0
 
 [5500sub1]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h1
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1827,7 +1827,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub2]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h2
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1835,7 +1835,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub3]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h3
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1843,7 +1843,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub4]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h4
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1851,7 +1851,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub5]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h5
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1859,7 +1859,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub6]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h6
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1867,7 +1867,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub7]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h7
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1875,7 +1875,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub8]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h8
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1883,7 +1883,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub9]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h9
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1891,7 +1891,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500subA]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500hA
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1899,7 +1899,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500subB]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500hB
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1907,7 +1907,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500subC]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500hC
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1915,7 +1915,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500subD]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500hD
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1923,7 +1923,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500subE]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500hE
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1931,7 +1931,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500subF]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500hF
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1939,7 +1939,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub10]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h10
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1947,7 +1947,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub11]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h11
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1955,7 +1955,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub12]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h12
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -1963,7 +1963,7 @@ DefaultValue=
 PDOMapping=0
 
 [5500sub13]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5500h13
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2202,7 +2202,7 @@ DefaultValue=32
 PDOMapping=0
 
 [5520sub1]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h1
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2210,7 +2210,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub2]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h2
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2218,7 +2218,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub3]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h3
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2226,7 +2226,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub4]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h4
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2234,7 +2234,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub5]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h5
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2242,7 +2242,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub6]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h6
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2250,7 +2250,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub7]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h7
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2258,7 +2258,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub8]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h8
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2266,7 +2266,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub9]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h9
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2274,7 +2274,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520subA]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520hA
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2282,7 +2282,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520subB]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520hB
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2290,7 +2290,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520subC]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520hC
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2298,7 +2298,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520subD]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520hD
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2306,7 +2306,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520subE]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520hE
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2314,7 +2314,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520subF]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520hF
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2322,7 +2322,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub10]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h10
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2330,7 +2330,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub11]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h11
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2338,7 +2338,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub12]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h12
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2346,7 +2346,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub13]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h13
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2354,7 +2354,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub14]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h14
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2362,7 +2362,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub15]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h15
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2370,7 +2370,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub16]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h16
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2378,7 +2378,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub17]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h17
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2386,7 +2386,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub18]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h18
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2394,7 +2394,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub19]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h19
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2402,7 +2402,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub1A]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h1A
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2410,7 +2410,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub1B]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h1B
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2418,7 +2418,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub1C]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h1C
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2426,7 +2426,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub1D]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h1D
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2434,7 +2434,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub1E]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h1E
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2442,7 +2442,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub1F]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h1F
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2450,7 +2450,7 @@ DefaultValue=
 PDOMapping=0
 
 [5520sub20]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5520h20
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2471,7 +2471,7 @@ DefaultValue=32
 PDOMapping=0
 
 [5521sub1]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h1
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2479,7 +2479,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub2]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h2
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2487,7 +2487,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub3]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h3
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2495,7 +2495,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub4]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h4
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2503,7 +2503,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub5]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h5
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2511,7 +2511,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub6]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h6
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2519,7 +2519,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub7]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h7
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2527,7 +2527,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub8]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h8
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2535,7 +2535,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub9]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h9
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2543,7 +2543,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521subA]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521hA
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2551,7 +2551,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521subB]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521hB
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2559,7 +2559,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521subC]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521hC
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2567,7 +2567,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521subD]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521hD
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2575,7 +2575,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521subE]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521hE
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2583,7 +2583,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521subF]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521hF
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2591,7 +2591,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub10]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h10
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2599,7 +2599,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub11]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h11
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2607,7 +2607,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub12]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h12
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2615,7 +2615,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub13]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h13
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2623,7 +2623,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub14]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h14
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2631,7 +2631,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub15]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h15
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2639,7 +2639,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub16]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h16
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2647,7 +2647,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub17]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h17
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2655,7 +2655,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub18]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h18
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2663,7 +2663,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub19]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h19
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2671,7 +2671,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub1A]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h1A
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2679,7 +2679,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub1B]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h1B
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2687,7 +2687,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub1C]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h1C
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2695,7 +2695,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub1D]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h1D
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2703,7 +2703,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub1E]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h1E
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2711,7 +2711,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub1F]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h1F
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2719,7 +2719,7 @@ DefaultValue=
 PDOMapping=0
 
 [5521sub20]
-ParameterName=szSharedRAM8_g
+ParameterName=szSharedRAM8_g_5521h20
 ObjectType=0x7
 DataType=0x0005
 AccessType=rw
@@ -2815,7 +2815,7 @@ DefaultValue=0x0
 PDOMapping=0
 
 [1003sub1]
-ParameterName=standard_error_field
+ParameterName=standard_error_field_1003h1
 ObjectType=0x7
 DataType=0x0007
 AccessType=ro
@@ -2823,7 +2823,7 @@ DefaultValue=0x0
 PDOMapping=0
 
 [1003sub2]
-ParameterName=standard_error_field
+ParameterName=standard_error_field_1003h2
 ObjectType=0x7
 DataType=0x0007
 AccessType=ro
@@ -2831,7 +2831,7 @@ DefaultValue=0x0
 PDOMapping=0
 
 [1003sub3]
-ParameterName=standard_error_field
+ParameterName=standard_error_field_1003h3
 ObjectType=0x7
 DataType=0x0007
 AccessType=ro
@@ -2839,7 +2839,7 @@ DefaultValue=0x0
 PDOMapping=0
 
 [1003sub4]
-ParameterName=standard_error_field
+ParameterName=standard_error_field_1003h4
 ObjectType=0x7
 DataType=0x0007
 AccessType=ro
@@ -4470,5 +4470,6 @@ DataType=0x0007
 AccessType=ro
 DefaultValue=0x000000AD
 PDOMapping=0
+
 
 
