@@ -78,7 +78,6 @@ void SteeringAngleSubscriber::advertise() {
 
 void SteeringAngleSubscriber::receive(const kacanopen::Steer& msg) {
 	const int32_t pos = steering_to_motor_pos(msg.steering_angle);
-	static bool motor_enabled = 0;
 
 	DEBUG_LOG("Received SteeringAngle message");
 	DEBUG_DUMP(pos);
