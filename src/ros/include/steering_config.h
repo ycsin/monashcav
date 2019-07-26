@@ -55,6 +55,8 @@
 #define M_HMT_DISABLE 0
 #define M_FAULT_DISABLE_DRIVE 0
 #define M_FAULT_SLOW_DOWN_RAMP 1
+#define M_ROTATION_LIMIT 3
+#define M_ANGLE_LIMIT 360*M_ROTATION_LIMIT
 
 /*
  * Stepper motor state

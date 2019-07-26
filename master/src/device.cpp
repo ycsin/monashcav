@@ -492,11 +492,11 @@ void Device::read_complete_dictionary() {
 }
 
 void Device::setRunning() {
-	m_state = 1;
+	m_state = true;
 }
 
 void Device::setReady() {
-	m_state = 0;
+	m_state = false;
 }
 
 bool Device::getState() {
