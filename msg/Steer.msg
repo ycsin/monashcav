@@ -1,1 +1,3 @@
 int32 steering_angle
+bool steering_enable
+uint8 steering_error
