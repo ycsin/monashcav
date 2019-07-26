@@ -91,6 +91,8 @@ void SteeringAnglePublisher::publish() {
 
 		const int32_t pos = m_device.get_entry(m_position_actual_field);
 		js.steering_angle = motor_to_steering_angle(pos);
+		js.steering_enable = m_device.getState();
+		js.steering_error = m_device.getErrorCode();
 
 		DEBUG_LOG("Sending Steering Angle message");
 		DEBUG_DUMP(pos);
