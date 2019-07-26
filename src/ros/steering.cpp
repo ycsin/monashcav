@@ -54,8 +54,6 @@ int main(int argc, char* argv[]) {
 	// "1M", "500K", "125K", "100K", "50K", "20K", "10K" and "5K".
 	const std::string baudrate = "1M";
 
-	const double loop_rate = 10; // [Hz]
-
 	kaco::Master master;
 	if (!master.start(busname, baudrate)) {
 		ERROR("Starting master failed.");
@@ -76,7 +74,6 @@ int main(int argc, char* argv[]) {
 	// Create bridge
 	ros::init(argc, argv, "canopen_bridge");
 	kaco::Bridge bridge;
-
 	bool found = false;
 
 	if (master.num_devices() > 1) {
@@ -86,10 +83,9 @@ int main(int argc, char* argv[]) {
 
 	kaco::Device& device = master.get_device(0);
 	device.start();
-
 	device.load_dictionary_from_library();
-
 	const auto profile = device.get_device_profile_number();
+
 	if (device.get_node_id() != 65) {
 		PRINT("Wrong node ID for the motor!");
 		return EXIT_FAILURE;
@@ -101,6 +97,7 @@ int main(int argc, char* argv[]) {
 		found = true;
 			
 		device.execute("initialise_motor");
+		PRINT("Initialised motor, motor ready");
 		device.setErrorCode(M_ERR_NONE);
 		device.setReady();
 		// TODO: target_position should be mapped to a PDO

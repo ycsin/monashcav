@@ -40,6 +40,13 @@
 
 #define GEAR_RATIO 4
 
+
+/*
+ * Publisher loop rate
+ */
+
+const double loop_rate = 10; // [Hz]
+
 /*
  * Stepper motor config
  */
@@ -72,3 +79,4 @@
 #define M_ERR_NONE 0
 #define M_ERR_REBOOTED 1
 #define M_ERR_CONNECTION_LOST 2
+#define M_ERR_EXCEEDS_LIMIT 3
