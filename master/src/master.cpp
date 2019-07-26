@@ -32,6 +32,11 @@
 #include "master.h"
 #include "core.h"
 #include "logger.h"
+#include "bridge.h"
+#include "entry_publisher.h"
+#include "entry_subscriber.h"
+#include "steering_angle_publisher.h"
+#include "steering_angle_subscriber.h"
 
 #include <memory>
 
@@ -96,12 +101,18 @@ void Master::device_alive_callback(const uint8_t node_id) {
 		//WARN("Device with node ID "<<node_id<<" already exists. Ignoring...");
 		WARN("Device with node ID "<<node_id<<" rebooted.");
 		WARN("Re-initiating...");
-		get_device(0).start();
-		get_device(0).execute("initialise_motor");
-		get_device(0).setErrorCode(M_ERR_REBOOTED);
-		get_device(0).setReady();
+		Device &device = get_device(0);
+		core.nmt.send_nmt_message(node_id,NMT::Command::start_node);
+		device.execute("initialise_motor");
+		device.setErrorCode(M_ERR_REBOOTED);
+		device.setReady();
+		PRINT("Initialised motor, motor ready");
+		Bridge bridge;
+		auto jspub = std::make_shared<SteeringAnglePublisher>(device, M_0_DEG_STEP, M_360_DEG_STEP);
+		bridge.add_publisher(jspub, loop_rate);
 	}
 }
 
 
 } // end namespace kaco
+
