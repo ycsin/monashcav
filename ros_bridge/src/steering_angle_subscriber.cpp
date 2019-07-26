@@ -89,6 +89,7 @@ void SteeringAngleSubscriber::receive(const monashcav::Steer& msg) {
 			if (m_device.getState() == MOTOR_READY) {
 				m_device.execute("enable_motor");
 				m_device.setRunning();
+				std::this_thread::sleep_for(std::chrono::milliseconds(300));
 				PRINT("Enabled operation, motor running");
 			}
 			try {
@@ -105,6 +106,7 @@ void SteeringAngleSubscriber::receive(const monashcav::Steer& msg) {
 		}
 	} else {
 		ERROR("Exception in SteeringAngleSubscriber::receive(): Input angle violates limits");
+		m_device.setErrorCode(M_ERR_EXCEEDS_LIMIT);
 	}
 }
 
@@ -119,4 +121,5 @@ int32_t SteeringAngleSubscriber::steering_to_motor_pos(int32_t pos) const {
 }
 
 } // end namespace kaco
+
 
