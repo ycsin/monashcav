@@ -87,7 +87,7 @@ void SteeringAngleSubscriber::receive(const monashcav::Steer& msg) {
 	if (msg.steering_angle <= M_ANGLE_LIMIT && msg.steering_angle >= -M_ANGLE_LIMIT) {
 		if (msg.steering_enable) {
 			if (m_device.getState() == MOTOR_READY) {
-				m_device.execute("enable_operation");
+				m_device.execute("enable_motor");
 				m_device.setRunning();
 				PRINT("Enabled operation, motor running");
 			}
