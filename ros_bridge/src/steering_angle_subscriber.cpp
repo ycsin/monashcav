@@ -76,33 +76,36 @@ void SteeringAngleSubscriber::advertise() {
 
 }
 
-void SteeringAngleSubscriber::receive(const kacanopen::Steer& msg) {
+void SteeringAngleSubscriber::receive(const monashcav::Steer& msg) {
 	const int32_t pos = steering_to_motor_pos(msg.steering_angle);
-
 	DEBUG_LOG("Received SteeringAngle message");
 	DEBUG_DUMP(pos);
 	DEBUG_DUMP(msg.steering_angle);
-	
-	if (m_device.getState() == MOTOR_READY && msg.steering_angle <= 1080 && msg.steering_angle >= -1080) {
-		m_device.execute("enable_operation");
-		m_device.setRunning();
-		PRINT("Enabled operation, motor running");
-	} else if (msg.steering_angle > 1080 || msg.steering_angle < -1080) {
-		m_device.execute("disable_operation");
-		m_device.setReady();
-		PRINT("Disabled operation, motor ready");
-	}
+	DEBUG_DUMP(msg.steering_enable);
+	DEBUG_DUMP(msg.steering_error);
 
-	if (m_device.getState() == MOTOR_RUNNING) {
-		try {
-			m_device.execute("set_target_position_immediate",pos);
-			
-		} catch (const sdo_error& error) {
-			// TODO: only catch timeouts?
-			ERROR("Exception in SteeringAngleSubscriber::receive(): "<<error.what());
+	if (msg.steering_angle <= M_ANGLE_LIMIT && msg.steering_angle >= -M_ANGLE_LIMIT) {
+		if (msg.steering_enable) {
+			if (m_device.getState() == MOTOR_READY) {
+				m_device.execute("enable_operation");
+				m_device.setRunning();
+				PRINT("Enabled operation, motor running");
+			}
+			try {
+				m_device.execute("set_target_position_immediate",pos);
+				
+			} catch (const sdo_error& error) {
+				// TODO: only catch timeouts?
+				ERROR("Exception in SteeringAngleSubscriber::receive(): "<<error.what());
+			}
+		} else {
+			m_device.execute("disable_operation");
+			m_device.setReady();
+			PRINT("Disabled operation, motor ready");
 		}
+	} else {
+		ERROR("Exception in SteeringAngleSubscriber::receive(): Input angle violates limits");
 	}
-
 }
 
 int32_t SteeringAngleSubscriber::steering_to_motor_pos(int32_t pos) const {
