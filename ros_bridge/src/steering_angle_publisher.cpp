@@ -37,7 +37,7 @@
 #include "steering_config.h"
 
 #include "ros/ros.h"
-#include "kacanopen/Steer.h"
+#include "monashcav/Steer.h"
 
 #include <string>
 #include <stdexcept>
@@ -74,7 +74,7 @@ void SteeringAnglePublisher::advertise() {
 	assert(!m_topic_name.empty());
 	DEBUG_LOG("Advertising "<<m_topic_name);
 	ros::NodeHandle nh;
-	m_publisher = nh.advertise<kacanopen::Steer>(m_topic_name, queue_size);
+	m_publisher = nh.advertise<monashcav::Steer>(m_topic_name, queue_size);
 	m_initialized = true;
 
 }
@@ -87,7 +87,7 @@ void SteeringAnglePublisher::publish() {
 			throw std::runtime_error("[SteeringAnglePublisher] publish() called before advertise().");
 		}
 
-		kacanopen::Steer js;
+		monashcav::Steer js;
 
 		const int32_t pos = m_device.get_entry(m_position_actual_field);
 		js.steering_angle = motor_to_steering_angle(pos);

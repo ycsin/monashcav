@@ -34,7 +34,7 @@
 #include "device.h"
 #include "subscriber.h"
 #include "ros/ros.h"
-#include "kacanopen/Steer.h"
+#include "monashcav/Steer.h"
  
 #include <string>
 #include <cmath>
@@ -78,7 +78,7 @@ namespace kaco {
 		static const unsigned queue_size = 100;
 
 		/// Callback "received ROS Steer message"
-		void receive(const kacanopen::Steer& msg);
+		void receive(const monashcav::Steer& msg);
 
 		/// converts steering radiant to "Target position" value from CanOpen using m_position_0_degree and m_position_360_degree
 		int32_t steering_to_motor_pos(int32_t pos) const;
