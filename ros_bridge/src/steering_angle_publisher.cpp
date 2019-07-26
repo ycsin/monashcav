@@ -99,12 +99,17 @@ void SteeringAnglePublisher::publish() {
 		DEBUG_DUMP(js.steering_angle);
 
 		m_publisher.publish(js);
-
+		m_device.setErrorCode(M_ERR_NONE);
 	} catch (const sdo_error& error) {
 		// TODO: only catch timeouts?
 		ERROR("Exception in SteeringAnglePublisher::publish(): "<<error.what());
 		ERROR("Connetion to stepper motor lost");
 		m_device.setErrorCode(M_ERR_CONNECTION_LOST);
+		monashcav::Steer js;
+		js.steering_angle = 0;
+		js.steering_enable = 0;
+		js.steering_error = M_ERR_CONNECTION_LOST;
+		m_publisher.publish(js);
 		m_device.setReady();
 		m_device.execute("initialise_motor");
 	}
@@ -121,4 +126,5 @@ int32_t SteeringAnglePublisher::motor_to_steering_angle(int32_t pos) const {
 }
 
 } // end namespace kaco
+
 
