@@ -7,7 +7,7 @@ Description=EDS for SEM USA LMDAA Nema23 CANopen Version V7.23.12
 CreationTime=11:52AM
 CreationDate=10-18-2018
 CreatedBy=Frank Servidone
-ModificationTime=12:35PM
+ModificationTime=03:28PM
 ModificationDate=07-26-2019
 ModifiedBy=Yong Cong Sin
 
@@ -66,6 +66,35 @@ ParameterName=ucErrorRegister_1001h
 ObjectType=0x7
 DataType=0x0005
 AccessType=ro
+DefaultValue=0x0
+PDOMapping=0
+
+[1008]
+ParameterName=Manufacturer Device Name
+ObjectType=0x7
+DataType=0x0009
+AccessType=const
+PDOMapping=0
+
+[1009]
+ParameterName=Manufacturer Hardware Version
+ObjectType=0x7
+DataType=0x0009
+AccessType=const
+PDOMapping=0
+
+[100A]
+ParameterName=Manufacturer Software Version
+ObjectType=0x7
+DataType=0x0009
+AccessType=const
+PDOMapping=0
+
+[1017]
+ParameterName=Producer Heartbeat Time
+ObjectType=0x07
+DataType=0x0006
+AccessType=rw
 DefaultValue=0x0
 PDOMapping=0
 
