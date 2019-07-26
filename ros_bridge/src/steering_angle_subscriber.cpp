@@ -29,9 +29,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
  
+#include "steering_angle_publisher.h"
 #include "steering_angle_subscriber.h"
 #include "utils.h"
 #include "logger.h"
+#include "bridge.h"
 #include "profiles.h"
 #include "sdo_error.h"
 #include "steering_config.h"
@@ -93,6 +95,14 @@ void SteeringAngleSubscriber::receive(const monashcav::Steer& msg) {
 				PRINT("Enabled operation, motor running");
 			}
 			try {
+				if(m_device.getErrorCode() == M_ERR_CONNECTION_LOST) {
+					Bridge bridge;
+					auto jspub = std::make_shared<SteeringAnglePublisher>(m_device, M_0_DEG_STEP, M_360_DEG_STEP);
+					bridge.add_publisher(jspub, loop_rate);
+
+					auto jssub = std::make_shared<kaco::SteeringAngleSubscriber>(m_device, M_0_DEG_STEP, M_360_DEG_STEP);
+					bridge.add_subscriber(jssub);
+				}
 				m_device.execute("set_target_position_immediate",pos);
 				
 			} catch (const sdo_error& error) {
