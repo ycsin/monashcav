@@ -56,6 +56,22 @@ namespace kaco {
 					}
 				},
 				{
+					"test_motor_torque",
+					[](Device& device,const Value&) -> Value {
+						device.set_entry("ucruncurrentpcnt_2204h", (uint8_t)M_RUN_CURRENT_PERCENT);
+						device.set_entry("sfault_reaction_opcode_605eh", (int16_t)M_FAULT_DISABLE_DRIVE);
+						device.set_entry("EmcpCbPreDefinedErrorField/Emcp_PreDefined_Error_Field_number_of_errors", (uint8_t)0);
+						device.set_entry("uchybriden_2701h", (uint8_t)M_HMT_ENABLE);
+						device.set_entry("modes_of_operation", device.get_constant("torque_profile_mode"));
+						device.set_entry("ulTorque_slope_x1000_pSecond_6087h", (uint32_t)1000);
+						device.set_entry("Target_torque_x1000", (int16_t)1000);
+						device.set_entry("ucTorque_max_velocity_2704h", (uint8_t)232);
+						device.set_entry("controlword", (uint16_t) 0x0006); // shutdown
+						device.set_entry("controlword", (uint16_t) 0x0007); // switch on
+						return Value(); // invalid value (return value not needed)
+					}
+				},
+				{
 					"enable_motor",
 					[](Device& device,const Value&) -> Value {
 						device.set_entry("controlword", (uint16_t) 0x000F); // enable operation

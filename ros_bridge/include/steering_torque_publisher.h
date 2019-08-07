@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2019-2020, Yong Cong Sin
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    1. Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ *    3. Neither the name of the copyright holder nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+ 
+#pragma once
+
+#include "device.h"
+#include "publisher.h"
+#include "ros/ros.h"
+
+#include <string>
+#include <cmath>
+
+
+namespace kaco {
+
+	/// This class provides a Publisher implementation for
+	/// use with kaco::Bridge and a CiA 402 motor device.
+	/// It publishes the motor state as JointState messages
+	/// from the ROS common_messages package.
+	///
+	/// Currenty, only the motor angle is published.
+	/// You have to initialize the motor on your own.
+	/// The motor is expected to be in position mode.
+	class SteeringTorquePublisher : public Publisher {
+
+	public:
+
+		/// Constructor
+		/// \param device a CiA 402 compliant motor device object
+		/// \param position_0_degree The motor position (dictionary
+		/// entry "Position actual value") which represents a
+		/// 0 degree angle.
+		/// \param position_360_degree Like position_0_degree for
+		/// 360 degree state.
+		/// \param position_actual_field Name of the dictionary entry to use.
+		/// \param topic_name Custom topic name. Leave out for default.
+		/// \throws std::runtime_error if device is not CiA 402 compliant and in position_mode.
+		SteeringTorquePublisher(Device& device, int32_t position_0_degree,
+			int32_t position_360_degree, const std::string& position_actual_field = "Torque_actual_x1000");
+
+		/// \see interface Publisher
+		void advertise() override;
+
+		/// \see interface Publisher
+		void publish() override;
+
+	private:
+
+		static const bool debug = false;
+
+		// TODO: let the user change this?
+		static const unsigned queue_size = 100;
+
+		Device& m_device;
+		int32_t m_position_0_degree;
+		int32_t m_position_360_degree;
+		std::string m_position_actual_field;
+		std::string m_topic_name="steering/get_angle";
+		bool m_initialized;
+
+		ros::Publisher m_publisher;
+
+	};
+
+} // end namespace kaco
