@@ -62,7 +62,7 @@ SteeringAngleSubscriber::SteeringAngleSubscriber(Device& device, int32_t positio
 	// TODO: look into INTERPOLATED_POSITION_MODE
 	if (operation_mode != Profiles::constants.at(402).at("profile_position_mode")
 		&& operation_mode != Profiles::constants.at(402).at("interpolated_position_mode")) {
-		throw std::runtime_error("[JointStatePublisher] Only position mode supported yet."
+		throw std::runtime_error("[SteeringAnglePublisher] Only position mode supported yet."
 			" Try device.set_entry(\"modes_of_operation\", device.get_constant(\"profile_position_mode\"));");
 	}
 

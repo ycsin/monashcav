@@ -53,7 +53,7 @@ SteeringAnglePublisher::SteeringAnglePublisher(Device& device, int32_t position_
 	const uint16_t profile = device.get_device_profile_number();
 
 	if (profile != 402) {
-		throw std::runtime_error("JointStatePublisher can only be used with a CiA 402 device."
+		throw std::runtime_error("SteeringAnglePublisher can only be used with a CiA 402 device."
 			" You passed a device with profile number "+std::to_string(profile));
 	}
 
