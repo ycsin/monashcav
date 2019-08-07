@@ -1,6 +1,6 @@
 [
 	{
-		"file": "SchneiderElectric/NEMA23_7_23_12.eds",
+		"file": "SchneiderElectric/NEMA23.eds",
 		"match": {
 			"Identity object/Vendor-ID": 539,
 			"Identity object/Product code": 0,
