@@ -1,9 +1,20 @@
-[![Licence](https://img.shields.io/badge/licence-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![drivers_lgpl Licence](https://img.shields.io/badge/drivers__lgpl%20licence-LGPL%202.1%2B-blue.svg)](https://opensource.org/licenses/LGPL-2.1)
-[![Build Status](https://api.travis-ci.org/KITmedical/kacanopen.svg?branch=master)](https://travis-ci.org/KITmedical/kacanopen)
+# Monash Connected Autonomous Vehicle 
+## Steer-by-wire ROS node
 
-# KaCanOpen
+This steer-by-wire ROS node is a fork of kacanopen by KITmedical with customisations such as:
 
+  - Removed unwanted examples and EDS files
+  - Auto-reconnect after CAN bus diconnect or motor power drop out.
+  - Error code feedback
+  - Custom msg
+
+## Custom msg
+
+  - int32 steering_angle - Input/output angle to/from the steering
+  - uint8 steering_error - Error code from the steering
+  - bool steering_enagle - Enable/disable the power to the steering to allow manual takeover
+
+## From KaCanOpen's readme
 KaCanOpen is an easy-to-use [CANopen](https://en.wikipedia.org/wiki/CANopen) stack, which consists of four parts:
 
 * __Drivers:__ A wide range of hardware is supported using different CAN drivers. They have been developed by the [CanFestival project](http://www.canfestival.org/). Read [this](drivers_lgpl/README) for details.
@@ -20,45 +31,21 @@ KaCanOpen is designed to make use of modern C++11/14 features and to avoid redun
 
 First make sure you've got a recent C++ compiler with C++14 support ([GCC](https://gcc.gnu.org/) >= 4.9, [Clang](http://clang.llvm.org/) >= 3.6), as well as [CMake](https://cmake.org/) >= 3.2 and [Boost](http://www.boost.org/) >= 1.46.1.
 
-KaCanOpen without the ROS part can be built easily using CMake:
-
-~~~bash
-git clone https://github.com/KITmedical/kacanopen.git
-cd kacanopen
-mkdir build
-cd build
-cmake -DDRIVER=<driver> -DNO_ROS=On ..
-make
-~~~
-
 `<driver>` can be one of the following: serial, socket, virtual, lincan, peak\_linux.
 
-The `examples` directory lists some examples on how to use KaCanOpen libraries. You can run them from the `build/examples` directory.
-
-KaCanOpen including the ROS part must be built using [Catkin](http://wiki.ros.org/catkin/Tutorials). Make sure you have [ROS Jade](http://www.ros.org/install/) installed. Go to your [workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace) and clone the repository into `src`:
+monashcav including the ROS part must be built using [Catkin](http://wiki.ros.org/catkin/Tutorials). Make sure you have [ROS Jade](http://www.ros.org/install/) installed. Go to your [workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace) and clone the repository into `src`:
 
 ~~~bash
 cd your_catkin_workspace/src
-git clone https://github.com/KITmedical/kacanopen.git
+git clone https://github.com/ycsin3/monashcav.git
 cd ..
 catkin_make -DDRIVER=<driver>
 ~~~
 
-When building with Catkin, you can excute example programs like that:
+When building with Catkin, you can excute main programs like that:
 
 ~~~bash
 cd your_catkin_workspace
 source devel/setup.bash
-rosrun kacanopen kacanopen_example_motor_and_io_bridge # roscore needs to be running
+rosrun monashcav mcav_steering # roscore needs to be running
 ~~~
-
-Complete build instructions can be found [here](doc/Installation.md).
-
-## Documentation
-
-Full documentation can be found at [https://kitmedical.github.io/kacanopen/](https://kitmedical.github.io/kacanopen/).
-
-## License
-
-Core, Master and ROS Bridge are licensed under the [BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause) license. Drivers from [CanFestival](http://www.canfestival.org/) are licensed under the [LGPLv2.1+](https://opensource.org/licenses/LGPL-2.1) license.
-
