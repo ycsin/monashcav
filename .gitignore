@@ -8,3 +8,4 @@ html/
 
 # dev/can-utils is fetched locally by dev/init_usbtin.sh
 dev/can-utils
+.vscode/settings.json
