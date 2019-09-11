@@ -86,7 +86,8 @@ void SteeringAngleSubscriber::receive(const monashcav::Steer& msg) {
 	DEBUG_DUMP(msg.steering_enable);
 	DEBUG_DUMP(msg.steering_error);
 
-	if (msg.steering_angle <= M_ANGLE_LIMIT && msg.steering_angle >= -M_ANGLE_LIMIT) {
+	//if (msg.steering_angle <= M_ANGLE_LIMIT && msg.steering_angle >= -M_ANGLE_LIMIT) {
+	if (true) {
 		if (msg.steering_enable) {
 			if (m_device.getState() == MOTOR_READY) {
 				m_device.execute("enable_motor");
@@ -103,7 +104,12 @@ void SteeringAngleSubscriber::receive(const monashcav::Steer& msg) {
 					auto jssub = std::make_shared<kaco::SteeringAngleSubscriber>(m_device, M_0_DEG_STEP, M_360_DEG_STEP);
 					bridge.add_subscriber(jssub);
 				}
-				m_device.execute("set_target_position_immediate",pos);
+				const int32_t current_pos = m_device.get_entry("Position actual value");
+				int32_t current_angle = motor_to_steering_angle(current_pos);
+				int32_t relative_angle = msg.steering_angle - current_angle;
+				int32_t relative_pos = steering_to_motor_pos(relative_angle);
+				//(int32_t)((int16_t)pos - (int16_t)current_pos)
+				m_device.execute("set_target_position_rel_immediate", relative_pos);
 				
 			} catch (const sdo_error& error) {
 				// TODO: only catch timeouts?
@@ -128,6 +134,15 @@ int32_t SteeringAngleSubscriber::steering_to_motor_pos(int32_t pos) const {
     const int32_t result = ((p * dist + 180) / 360) + min;
     return result;
 
+}
+
+int32_t SteeringAngleSubscriber::motor_to_steering_angle(int32_t pos) const {
+    const int32_t p = pos;
+    const int32_t min = m_position_0_degree;
+    const int32_t max = m_position_360_degree;
+    const int32_t dist = max - min;
+    const int32_t result = ((p - min) * 360 + (dist * GEAR_RATIO)/2) / (dist * GEAR_RATIO);
+    return result;
 }
 
 } // end namespace kaco
