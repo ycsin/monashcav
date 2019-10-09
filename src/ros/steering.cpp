@@ -95,8 +95,7 @@ int main(int argc, char* argv[]) {
 	if (profile==402) {
 
 		found = true;
-		//device.set_entry("restore_default_parameters/restore_all_default_parameters", (uint32_t)1684107116);
-		//device.print_dictionary();
+			
 		device.execute("initialise_motor");
 		PRINT("Initialised motor, motor ready");
 		device.setErrorCode(M_ERR_NONE);
