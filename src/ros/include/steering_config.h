@@ -55,15 +55,15 @@ const double loop_rate = 10; // [Hz]
 #define M_0_DEG_STEP 0
 #define M_360_DEG_STEP M_USTEP
 #define M_RUN_CURRENT_PERCENT 100
-#define M_ACC_PROFILE 6*M_USTEP
-#define M_DEC_PROFILE 9*M_USTEP
-#define M_MAX_VELOCITY 3*M_USTEP
+#define M_ACC_PROFILE M_USTEP
+#define M_DEC_PROFILE M_USTEP
+#define M_MAX_VELOCITY 2*M_USTEP
 #define M_HMT_ENABLE 128
 #define M_HMT_DISABLE 0
 #define M_FAULT_DISABLE_DRIVE 0
 #define M_FAULT_SLOW_DOWN_RAMP 1
 #define M_ROTATION_LIMIT 3
-#define M_ANGLE_LIMIT 360*M_ROTATION_LIMIT
+#define M_ANGLE_LIMIT 550
 
 /*
  * Stepper motor state

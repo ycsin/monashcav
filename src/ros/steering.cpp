@@ -93,9 +93,9 @@ int main(int argc, char* argv[]) {
 	PRINT("Found CiA "<<std::dec<<(unsigned)profile<<" device with node ID 65: "<<device.get_entry("manufacturer_device_name"));
 
 	if (profile==402) {
-
+		
 		found = true;
-			
+		
 		device.execute("initialise_motor");
 		PRINT("Initialised motor, motor ready");
 		device.setErrorCode(M_ERR_NONE);
